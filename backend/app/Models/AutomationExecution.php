@@ -1,0 +1,2 @@
+<?php
+namespace App\Models;use Illuminate\Database\Eloquent\Model;class AutomationExecution extends Model{protected $fillable=['correlation_id','automation_id','organization_id','trigger_type','trigger_data','status','started_at','completed_at','error_message','result_summary'];protected $casts=['trigger_data'=>'array','result_summary'=>'array','started_at'=>'datetime','completed_at'=>'datetime'];public function automation(){return $this->belongsTo(Automation::class);}public function logs(){return $this->hasMany(AutomationExecutionLog::class);}}

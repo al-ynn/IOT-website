@@ -1,0 +1,2 @@
+import type {ReactNode} from "react";
+export default function AdminPageHeader({title,description,action}:{title:string;description:string;action?:ReactNode}){return <header className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--ds-primary)]">Platform administration</p><h1 className="mt-1 text-2xl font-semibold text-[var(--ds-text)]">{title}</h1><p className="mt-1 text-sm text-[var(--ds-text-muted)]">{description}</p></div>{action}</header>}

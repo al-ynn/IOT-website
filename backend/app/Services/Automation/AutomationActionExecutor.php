@@ -1,0 +1,8 @@
+<?php
+namespace App\Services\Automation;
+use App\Models\AutomationAction;use App\Models\AutomationExecution;use App\Models\Notification;
+class AutomationActionExecutor{
+ public function execute(AutomationAction $action,AutomationExecution $execution):array{$started=microtime(true);try{$message=(string)($action->configuration['payload']['message']??'Automation triggered');if($action->type!=='notification')throw new \RuntimeException('Unsupported action type.');foreach($execution->automation->organization->users as $user)Notification::create(['organization_id'=>$execution->organization_id,'user_id'=>$user->id,'title'=>$execution->automation->name,'message'=>$message,'severity'=>'warning']);$result=['actionId'=>(string)$action->id,'success'=>true,'message'=>'Notification created','executedAt'=>now()->toISOString()];$this->log($execution,$action,'info',$result['message'],$result);return $result;}catch(\Throwable $e){$result=['actionId'=>(string)$action->id,'success'=>false,'message'=>$e->getMessage(),'executedAt'=>now()->toISOString()];$this->log($execution,$action,'error',$result['message'],[]);return $result+['durationMs'=>(int)((microtime(true)-$started)*1000)];}}
+ private function log(AutomationExecution $e,AutomationAction $a,string $level,string $message,array $context):void{$e->logs()->create(['automation_action_id'=>$a->id,'level'=>$level,'message'=>$message,'context'=>$this->redact($context),'executed_at'=>now()]);}
+ private function redact(array $data):array{foreach($data as $k=>$v){if(preg_match('/token|password|secret|key/i',(string)$k))$data[$k]='[REDACTED]';elseif(is_array($v))$data[$k]=$this->redact($v);}return $data;}
+}

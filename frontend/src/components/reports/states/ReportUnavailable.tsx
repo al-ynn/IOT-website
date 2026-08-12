@@ -1,0 +1,2 @@
+import {FileWarning} from "lucide-react";import {EmptyState} from "../../ui";
+export default function ReportUnavailable({title="Reporting unavailable",description="Laravel does not currently expose report generation, storage, or download endpoints."}:{title?:string;description?:string}){return <EmptyState icon={<FileWarning size={18}/>} title={title} description={description} className="min-h-56"/>}

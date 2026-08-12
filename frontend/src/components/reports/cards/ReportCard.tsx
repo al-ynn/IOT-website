@@ -1,0 +1,2 @@
+import {Badge,Card,CardContent} from "../../ui";import type {Report} from "../../../types/report";
+export default function ReportCard({report}:{report:Report}){return <Card><CardContent><div className="flex justify-between gap-3"><h2 className="text-sm font-semibold">{report.name}</h2><Badge>{report.type.replaceAll("_"," ")}</Badge></div><p className="mt-3 text-xs text-[var(--ds-text-muted)]">Created <time dateTime={report.createdAt}>{new Date(report.createdAt).toLocaleString()}</time></p></CardContent></Card>}

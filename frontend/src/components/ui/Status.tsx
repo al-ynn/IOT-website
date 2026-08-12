@@ -1,0 +1,6 @@
+import type {HTMLAttributes} from "react";import {cn} from "../../utils/cn";
+export type StatusTone="neutral"|"info"|"success"|"warning"|"danger";
+const tones={neutral:"bg-slate-500/10 text-slate-300 ring-slate-500/20",info:"bg-blue-500/10 text-blue-300 ring-blue-500/20",success:"bg-emerald-500/10 text-emerald-300 ring-emerald-500/20",warning:"bg-amber-500/10 text-amber-300 ring-amber-500/20",danger:"bg-red-500/10 text-red-300 ring-red-500/20"};
+export function Badge({tone="neutral",className,...props}:HTMLAttributes<HTMLSpanElement>&{tone?:StatusTone}){return <span className={cn("inline-flex h-5 items-center rounded-[6px] px-2 text-[11px] font-medium ring-1 ring-inset",tones[tone],className)} {...props}/>;}
+export function Chip(props:HTMLAttributes<HTMLSpanElement>&{tone?:StatusTone}){return <Badge {...props} className={cn("h-6 rounded-full px-2.5",props.className)}/>;}
+export function StatusIndicator({status,label,className}:{status:"online"|"offline"|"warning"|"error";label?:string;className?:string}){const styles={online:"bg-emerald-400",offline:"bg-slate-500",warning:"bg-amber-400",error:"bg-red-400"};return <span className={cn("inline-flex items-center gap-2 text-xs text-[var(--ds-text-muted)]",className)}><span aria-hidden className={cn("h-2 w-2 rounded-full",styles[status])}/><span>{label??status}</span></span>;}

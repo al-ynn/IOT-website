@@ -1,0 +1,2 @@
+import {Card,CardHeader} from "../../ui";import ReportUnavailable from "../states/ReportUnavailable";
+export default function ReportBuilder(){return <Card><CardHeader title="Report configuration" description="Configuration becomes available when Laravel defines supported report types, sources, ranges, and formats."/><ReportUnavailable title="Report builder unavailable" description="No backend report creation or generation contract exists, so unsupported form controls are not displayed."/></Card>}

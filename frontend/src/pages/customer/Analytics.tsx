@@ -1,0 +1,1 @@
+import AnalyticsHeader from "../../components/analytics/layout/AnalyticsHeader";import AnalyticsPanel from "../../components/analytics/layout/AnalyticsPanel";export default function Analytics(){return <div className="space-y-5"><AnalyticsHeader/><AnalyticsPanel/></div>}

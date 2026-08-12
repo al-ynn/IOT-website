@@ -1,0 +1,1 @@
+import {StatusIndicator} from "../../ui";export default function StatusWidget({status,label}:{status:"online"|"offline"|"warning"|"error";label?:string}){return <div className="flex h-full items-center"><StatusIndicator status={status} label={label}/></div>}

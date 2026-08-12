@@ -1,0 +1,2 @@
+import { EmptyState } from "../../ui";import type { ActivityEvent } from "../../../services/activity.service";import ActivityItem from "./ActivityItem";
+export default function ActivityTimeline({events}:{events:ActivityEvent[]}){if(!events.length)return <EmptyState title="No activity recorded" description="Automation executions will appear here after an automation runs."/>;return <ol className="space-y-4" aria-label="Workspace activity">{events.map(event=><ActivityItem key={event.id} event={event}/>)}</ol>}

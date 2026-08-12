@@ -1,0 +1,2 @@
+import { BellOff } from "lucide-react";import { EmptyState } from "../../ui";
+export default function NotificationUnavailable({compact=false}:{compact?:boolean}){return <EmptyState className={compact?"min-h-32":"min-h-56"} icon={<BellOff size={18}/>} title="Notification inbox unavailable" description="Laravel does not currently expose notification inbox endpoints. No sample notifications are shown."/>}

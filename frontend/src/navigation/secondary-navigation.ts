@@ -1,0 +1,29 @@
+import {Activity,AlertTriangle,ArchiveRestore,BookOpen,Boxes,Gauge,History,LayoutDashboard,MapPin,Settings,ShieldCheck,Users,type LucideIcon} from "lucide-react";
+import {routeMatches} from "./app-navigation";
+
+export interface SecondaryNavigationItem{id:string;label:string;path:string;icon:LucideIcon;matches:string[];permission?:string;adminOnly?:boolean}
+export interface SecondaryNavigationSection{id:string;label:string;items:SecondaryNavigationItem[]}
+export interface SecondaryNavigationContext{key:string;primaryKey:string;label:string;routeMatches:string[];adminOnly?:boolean;sections:SecondaryNavigationSection[]}
+export interface ResolvedSecondaryNavigation{context:SecondaryNavigationContext;sections:SecondaryNavigationSection[];activeItemId?:string}
+
+const entry=(id:string,label:string,path:string,icon:LucideIcon,matches:string[],options:Pick<SecondaryNavigationItem,"permission"|"adminOnly">={}):SecondaryNavigationItem=>({id,label,path,icon,matches,...options});
+
+// Only real URL-backed module/collection destinations belong here. Resource
+// instance tabs, workflow actions, page filters, and runtime records do not.
+export const secondaryNavigationContexts:SecondaryNavigationContext[]=[
+ {key:"collaboration-workspace",primaryKey:"collaboration-overview",label:"Collaboration",routeMatches:["/app/collaboration","/app/my-work","/app/shared-with-me","/app/changes","/app/activity"],sections:[{id:"workspace",label:"Personal collaboration",items:[entry("collaboration-overview","Overview","/app/collaboration",Gauge,["/app/collaboration"]),entry("my-work","My Work","/app/my-work",BookOpen,["/app/my-work"]),entry("shared-with-me","Shared With Me","/app/shared-with-me",Users,["/app/shared-with-me"]),entry("changes","Changes","/app/changes",History,["/app/changes"]),entry("activity","Activity","/app/activity",Activity,["/app/activity"])]}]},
+ {key:"dashboard-collections",primaryKey:"dashboard",label:"Dashboard",routeMatches:["/app/dashboard","/app/dashboard/*"],sections:[{id:"dashboards",label:"Dashboard collections",items:[entry("personal-dashboard","My Dashboard","/app/dashboard",LayoutDashboard,["/app/dashboard"]),entry("published-dashboards","Published Dashboards","/app/dashboard/published",BookOpen,["/app/dashboard/published","/app/dashboard/published/*"])]}]},
+ {key:"device-collections",primaryKey:"devices",label:"Devices",routeMatches:["/app/devices","/app/devices/*","/app/fleet"],sections:[{id:"devices",label:"Device collections",items:[entry("all-devices","All Devices","/app/devices",Activity,["/app/devices","/app/devices/*"]),entry("fleet-overview","Fleet Overview","/app/fleet",ShieldCheck,["/app/fleet"])]}]},
+ {key:"admin-resources",primaryKey:"admin-resources",label:"Resources",routeMatches:["/admin/resources","/admin/resources/*","/admin/recently-created","/admin/recently-updated","/admin/disabled-resources","/admin/needs-attention","/admin/devices","/admin/devices/*","/admin/locations","/admin/locations/*","/admin/device-access","/admin/access-requests"],adminOnly:true,sections:[{id:"inventory",label:"Inventory",items:[entry("all-resources","All Resources","/admin/resources",Boxes,["/admin/resources","/admin/resources/*"],{adminOnly:true}),entry("recently-created","Recently Created","/admin/recently-created",History,["/admin/recently-created"],{adminOnly:true}),entry("recently-updated","Recently Updated","/admin/recently-updated",History,["/admin/recently-updated"],{adminOnly:true}),entry("disabled-resources","Disabled Resources","/admin/disabled-resources",ArchiveRestore,["/admin/disabled-resources"],{adminOnly:true}),entry("needs-attention","Needs Attention","/admin/needs-attention",AlertTriangle,["/admin/needs-attention"],{adminOnly:true})]},{id:"governance",label:"Resource governance",items:[entry("global-devices","Global Devices","/admin/devices",Activity,["/admin/devices","/admin/devices/*"],{adminOnly:true}),entry("global-locations","Locations","/admin/locations",MapPin,["/admin/locations","/admin/locations/*"],{adminOnly:true}),entry("device-access","Device Access","/admin/device-access",ShieldCheck,["/admin/device-access"],{adminOnly:true}),entry("access-requests","Access Requests","/admin/access-requests",Gauge,["/admin/access-requests"],{adminOnly:true})]}]},
+ {key:"admin-settings",primaryKey:"admin-settings",label:"System Settings",routeMatches:["/admin/system","/admin/users","/admin/users/*","/admin/organizations","/admin/organizations/*"],adminOnly:true,sections:[{id:"platform",label:"Platform administration",items:[entry("system-settings","System Settings","/admin/system",Settings,["/admin/system"],{adminOnly:true}),entry("users","Users / Staff","/admin/users",Users,["/admin/users","/admin/users/*"],{adminOnly:true}),entry("organizations","Organizations","/admin/organizations",BookOpen,["/admin/organizations","/admin/organizations/*"],{adminOnly:true})]}]},
+];
+
+const specificity=(patterns:string[])=>Math.max(...patterns.map(pattern=>pattern.replace("*","").length));
+export function resolveSecondaryNavigation(pathname:string,isAdmin:boolean,can:(permission:string)=>boolean):ResolvedSecondaryNavigation|undefined{
+ const context=secondaryNavigationContexts.find(candidate=>(!candidate.adminOnly||isAdmin)&&routeMatches(pathname,candidate.routeMatches));
+ if(!context)return undefined;
+ const sections=context.sections.map(section=>({...section,items:section.items.filter(item=>(!item.adminOnly||isAdmin)&&(!item.permission||can(item.permission)))})).filter(section=>section.items.length>0);
+ if(sections.reduce((count,section)=>count+section.items.length,0)<2)return undefined;
+ const activeItem=sections.flatMap(section=>section.items).filter(item=>routeMatches(pathname,item.matches)).sort((left,right)=>specificity(right.matches)-specificity(left.matches))[0];
+ return {context,sections,activeItemId:activeItem?.id};
+}

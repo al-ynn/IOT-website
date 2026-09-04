@@ -1,0 +1,2 @@
+import api from"./api";import type{ResourceAttribution}from"../types/attribution";
+export async function getResourceAttribution(type:string,id:string){return(await api.get<ResourceAttribution>(`/collaboration/resources/${type}/${id}/attribution`)).data}

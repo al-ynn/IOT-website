@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
+return new class extends Migration{public function up():void{Schema::table('report_runs',function(Blueprint $t){$t->foreignId('report_revision_id')->nullable()->after('report_id')->constrained('resource_revisions')->nullOnDelete();$t->index(['report_id','report_revision_id'],'report_run_revision');});}public function down():void{Schema::table('report_runs',function(Blueprint $t){$t->dropIndex('report_run_revision');$t->dropConstrainedForeignId('report_revision_id');});}};

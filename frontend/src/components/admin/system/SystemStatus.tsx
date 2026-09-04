@@ -1,2 +1,0 @@
-import {ServerOff} from "lucide-react";import {Card,CardHeader,EmptyState} from "../../ui";
-export default function SystemStatus(){return <Card><CardHeader title="Application health" description="API, database, queue, and service health."/><EmptyState icon={<ServerOff size={18}/>} title="System health unavailable" description="Laravel does not expose an authenticated platform health endpoint. No inferred or browser-generated status is displayed."/></Card>}

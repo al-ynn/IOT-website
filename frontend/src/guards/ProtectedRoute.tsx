@@ -10,7 +10,7 @@ export default function ProtectedRoute({children,permission,roles,platformAdmin=
  if(authLoading||orgLoading||permissionLoading)return <div className="p-6 text-gray-400">Loading…</div>;
  if(!user)return <Navigate to="/login" replace state={{from:location}}/>;
  if(platformAdmin&&user.platformRole!=="platform_admin")return <Navigate to="/unauthorized" replace/>;
- if(requireOrganization&&!platformAdmin&&!organization)return <Navigate to="/app/organization" replace/>;
+ if(requireOrganization&&!organization)return <Navigate to="/unauthorized" replace/>;
  if(roles&&!roles.includes(user.role))return <Navigate to="/unauthorized" replace/>;
  if(permission&&!can(permission))return <Navigate to="/unauthorized" replace/>;
  return <>{children}</>;

@@ -1,23 +1,180 @@
 <?php
+
 namespace Tests\Feature;
-use App\Models\Automation;use App\Models\AutomationExecution;use App\Models\Notification;use App\Models\Organization;use App\Models\Plan;use App\Models\User;use App\Services\Automation\AutomationDefinitionService;use App\Services\Automation\AutomationExecutionService;use App\Services\Automation\ConditionEvaluator;use Illuminate\Foundation\Testing\RefreshDatabase;use Tests\TestCase;
-class AutomationPlatformTest extends TestCase{
- use RefreshDatabase;
- private function plan(array $features=['automation.basic'],int $limit=2):Plan{return Plan::create(['id'=>'automation-'.uniqid(),'name'=>'Automation','description'=>'','price'=>1,'currency'=>'USD','interval'=>'monthly','features'=>$features,'device_limit'=>10,'user_limit'=>10,'dashboard_limit'=>10,'automation_limit'=>$limit,'active'=>true,'is_default'=>false]);}
- private function context(?Plan $plan=null,string $role='owner'):array{$plan??=$this->plan();$org=Organization::create(['name'=>'Org','slug'=>'org-'.uniqid()]);$user=User::factory()->create(['organization_id'=>$org->id,'role'=>$role]);$org->subscriptions()->create(['plan_id'=>$plan->id,'status'=>'active','current_period_start'=>now(),'current_period_end'=>now()->addMonth()]);return [$org,$user];}
- private function definition(array $overrides=[]):array{return array_replace_recursive(['name'=>'High temperature','description'=>'Notify operators','enabled'=>true,'trigger'=>['type'=>'telemetry','field'=>'temperature'],'conditions'=>['logic'=>'AND','conditions'=>[['field'=>'temperature','operator'=>'>','value'=>80]]],'actions'=>[['type'=>'notification','target'=>'organization','payload'=>['message'=>'Too hot'],'continueOnFailure'=>false]]],$overrides);}
- public function test_crud_enable_disable_execute_and_logs_contracts():void{[$org,$user]=$this->context();$created=$this->actingAs($user)->postJson('/api/automations',$this->definition())->assertCreated()->assertJsonPath('trigger.type','telemetry');$id=$created->json('id');$this->actingAs($user)->getJson('/api/automations')->assertOk()->assertJsonCount(1);$this->actingAs($user)->getJson("/api/automations/$id")->assertOk()->assertJsonPath('name','High temperature');$this->actingAs($user)->putJson("/api/automations/$id",['name'=>'Renamed'])->assertOk()->assertJsonPath('version',2);$this->actingAs($user)->postJson("/api/automations/$id/disable")->assertOk()->assertJsonPath('enabled',false);$this->actingAs($user)->postJson("/api/automations/$id/execute",['data'=>['temperature'=>100]])->assertOk()->assertJsonPath('status','skipped');$this->actingAs($user)->postJson("/api/automations/$id/enable")->assertOk();$this->actingAs($user)->postJson("/api/automations/$id/execute",['data'=>['temperature'=>100]])->assertOk()->assertJsonPath('status','completed');$this->assertSame(1,Notification::where('organization_id',$org->id)->count());$this->actingAs($user)->getJson("/api/automations/$id/executions")->assertOk()->assertJsonCount(2,'data');$this->actingAs($user)->getJson('/api/automation/logs')->assertOk();$this->actingAs($user)->deleteJson("/api/automations/$id")->assertNoContent();}
- public function test_organization_isolation_hides_all_automation_resources():void{[$a,$userA]=$this->context();[$b,$userB]=$this->context();$automation=app(AutomationDefinitionService::class)->create($b,$userB,$this->definition());foreach([['getJson',"/api/automations/$automation->id"],['putJson',"/api/automations/$automation->id"],['deleteJson',"/api/automations/$automation->id"],['postJson',"/api/automations/$automation->id/execute"],['getJson',"/api/automations/$automation->id/executions"],['getJson',"/api/automations/$automation->id/logs"]] as [$method,$url])$this->actingAs($userA)->{$method}($url)->assertNotFound();$this->assertSame(0,$a->automations()->count());}
- public function test_permissions_entitlements_advanced_and_limit_are_enforced():void{[$org,$viewer]=$this->context(role:'viewer');$this->actingAs($viewer)->postJson('/api/automations',$this->definition())->assertForbidden();[$noOrg,$noFeature]=$this->context($this->plan([],2));$this->actingAs($noFeature)->postJson('/api/automations',$this->definition())->assertForbidden()->assertJson(['code'=>'FEATURE_NOT_AVAILABLE']);[$basic,$owner]=$this->context($this->plan(['automation.basic'],1));$this->actingAs($owner)->postJson('/api/automations',$this->definition(['enabled'=>false]))->assertCreated();$this->actingAs($owner)->postJson('/api/automations',$this->definition(['name'=>'Second','enabled'=>false]))->assertForbidden()->assertJson(['code'=>'BILLING_LIMIT_REACHED']);[$advanced,$advancedOwner]=$this->context($this->plan(['automation.basic'],5));$this->actingAs($advancedOwner)->postJson('/api/automations',$this->definition(['conditions'=>['logic'=>'OR']]))->assertForbidden()->assertJson(['code'=>'FEATURE_NOT_AVAILABLE']);$this->assertSame(1,$basic->automations()->count());}
- public function test_condition_engine_supports_pass_fail_and_and_or():void{$e=app(ConditionEvaluator::class);$this->assertTrue($e->evaluate(['logic'=>'AND','conditions'=>[['field'=>'temperature','operator'=>'>','value'=>80],['field'=>'status','operator'=>'=','value'=>'online']]],['temperature'=>90,'status'=>'online']));$this->assertFalse($e->evaluate(['logic'=>'AND','conditions'=>[['field'=>'temperature','operator'=>'>','value'=>80]]],['temperature'=>70]));$this->assertTrue($e->evaluate(['logic'=>'OR','conditions'=>[['field'=>'temperature','operator'=>'>','value'=>80],['field'=>'humidity','operator'=>'>','value'=>90]]],['temperature'=>20,'humidity'=>95]));}
- public function test_invalid_definitions_are_rejected():void{[, $user]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$this->actingAs($user)->postJson('/api/automations',$this->definition(['trigger'=>['type'=>'invalid']]))->assertUnprocessable()->assertJsonValidationErrors('trigger.type');$this->actingAs($user)->postJson('/api/automations',$this->definition(['actions'=>[['type'=>'webhook','payload'=>['message'=>'x']]]]))->assertUnprocessable()->assertJsonValidationErrors('actions.0.type');$this->actingAs($user)->postJson('/api/automations',$this->definition(['conditions'=>['conditions'=>[['field'=>'x','operator'=>'eval','value'=>'x']]]]))->assertUnprocessable()->assertJsonValidationErrors('conditions.conditions.0.operator');}
- public function test_execution_is_idempotent_and_action_failure_is_logged():void{[$org,$user]=$this->context();$a=app(AutomationDefinitionService::class)->create($org,$user,$this->definition());$service=app(AutomationExecutionService::class);$one=$service->execute($a,'manual',['temperature'=>100],'11111111-1111-4111-8111-111111111111');$two=$service->execute($a,'manual',['temperature'=>100],'11111111-1111-4111-8111-111111111111');$this->assertSame($one->id,$two->id);$this->assertSame(1,AutomationExecution::count());$a->actions()->first()->update(['type'=>'unsupported']);$failed=$service->execute($a->fresh(),'manual',['temperature'=>100]);$this->assertSame('failed',$failed->status);$this->assertSame('error',$failed->logs->first()->level);}
- public function test_due_schedule_executes_once_per_correlation():void{[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$a=app(AutomationDefinitionService::class)->create($org,$user,$this->definition(['trigger'=>['type'=>'schedule'],'conditions'=>['conditions'=>[]],'schedule'=>['type'=>'interval','intervalMinutes'=>5,'enabled'=>true]]));$a->schedules()->first()->update(['next_run_at'=>now()->subMinute()]);$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(1,$a->executions()->count());$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(1,$a->executions()->count());}
- public function test_multiple_actions_and_telemetry_trigger_execute_through_backend():void{[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$device=$org->devices()->create(['name'=>'Sensor','external_id'=>'sensor-1','type'=>'sensor','protocol'=>'mqtt']);$definition=$this->definition(['trigger'=>['type'=>'telemetry','deviceId'=>$device->id,'field'=>'temperature'],'actions'=>[['type'=>'notification','target'=>'organization','payload'=>['message'=>'One'],'continueOnFailure'=>true],['type'=>'notification','target'=>'organization','payload'=>['message'=>'Two']]]]);$automation=app(AutomationDefinitionService::class)->create($org,$user,$definition);$this->actingAs($user)->postJson('/api/automation/events',['type'=>'telemetry','deviceId'=>$device->id,'field'=>'temperature','value'=>95,'timestamp'=>now()->toISOString(),'correlationId'=>'22222222-2222-4222-8222-222222222222'])->assertOk()->assertJson(['matched'=>1]);$this->assertSame(2,Notification::where('organization_id',$org->id)->count());$this->assertSame('completed',$automation->executions()->first()->status);}
- public function test_template_instantiation_is_real_and_limit_checked():void{[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],1));$template=\App\Models\AutomationTemplate::create(['organization_id'=>$org->id,'name'=>'Template','description'=>'','category'=>'Test','definition'=>$this->definition(['enabled'=>false]),'created_by'=>$user->id]);$this->actingAs($user)->getJson('/api/automation/templates')->assertOk()->assertJsonCount(1);$this->actingAs($user)->postJson("/api/automation/templates/$template->id/create")->assertCreated();$this->actingAs($user)->postJson("/api/automation/templates/$template->id/create")->assertForbidden()->assertJson(['code'=>'BILLING_LIMIT_REACHED']);}
- public function test_current_advanced_entitlement_is_enforced_for_every_execution_path():void{[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],10));$device=$org->devices()->create(['name'=>'Sensor','external_id'=>'hardening-sensor','type'=>'sensor','protocol'=>'mqtt']);$definitions=app(AutomationDefinitionService::class);$advanced=$this->definition(['conditions'=>['logic'=>'OR']]);$manual=$definitions->create($org,$user,$advanced);$telemetry=$definitions->create($org,$user,$this->definition(['name'=>'Telemetry advanced','trigger'=>['type'=>'telemetry','deviceId'=>$device->id,'field'=>'temperature'],'conditions'=>['logic'=>'OR']]));$deviceStatus=$definitions->create($org,$user,$this->definition(['name'=>'Status advanced','trigger'=>['type'=>'device_status','deviceId'=>$device->id,'field'=>'status'],'conditions'=>['logic'=>'OR','conditions'=>[]]]));$scheduled=$definitions->create($org,$user,$this->definition(['name'=>'Schedule advanced','trigger'=>['type'=>'schedule'],'conditions'=>['conditions'=>[]],'schedule'=>['type'=>'interval','intervalMinutes'=>5,'enabled'=>true]]));$basicPlan=$this->plan(['automation.basic'],10);$org->subscription()->update(['plan_id'=>$basicPlan->id]);$this->actingAs($user)->postJson("/api/automations/$manual->id/execute",['data'=>['temperature'=>100]])->assertForbidden()->assertJson(['code'=>'FEATURE_NOT_AVAILABLE']);foreach([['telemetry','temperature',100],['device_status','status','online']] as [$type,$field,$value])$this->actingAs($user)->postJson('/api/automation/events',['type'=>$type,'deviceId'=>$device->id,'field'=>$field,'value'=>$value,'timestamp'=>now()->toISOString()])->assertOk()->assertJson(['matched'=>0]);$scheduled->schedules()->first()->update(['next_run_at'=>now()->subMinute()]);$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(0,AutomationExecution::whereIn('automation_id',[$manual->id,$telemetry->id,$deviceStatus->id,$scheduled->id])->count());$this->assertSame(0,Notification::where('organization_id',$org->id)->count());}
- public function test_basic_and_advanced_automations_execute_with_current_entitlements():void{[$basicOrg,$basicUser]=$this->context($this->plan(['automation.basic'],5));$basic=app(AutomationDefinitionService::class)->create($basicOrg,$basicUser,$this->definition());$this->actingAs($basicUser)->postJson("/api/automations/$basic->id/execute",['data'=>['temperature'=>100]])->assertOk()->assertJsonPath('status','completed');[$advancedOrg,$advancedUser]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$advanced=app(AutomationDefinitionService::class)->create($advancedOrg,$advancedUser,$this->definition(['conditions'=>['logic'=>'OR']]));$this->actingAs($advancedUser)->postJson("/api/automations/$advanced->id/execute",['data'=>['temperature'=>100]])->assertOk()->assertJsonPath('status','completed');}
- public function test_schedule_api_sets_recalculates_and_reenables_next_run_at_consistently():void{\Illuminate\Support\Carbon::setTestNow('2026-08-11 10:00:00');[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$automation=app(AutomationDefinitionService::class)->create($org,$user,$this->definition(['enabled'=>false]));$created=$this->actingAs($user)->postJson('/api/automation/schedules',['automationId'=>$automation->id,'type'=>'interval','intervalMinutes'=>5,'enabled'=>true])->assertCreated();$scheduleId=$created->json('id');$this->assertSame('2026-08-11T10:05:00.000000Z',$created->json('next_run_at'));$updated=$this->actingAs($user)->patchJson("/api/automation/schedules/$scheduleId",['intervalMinutes'=>15])->assertOk();$this->assertSame('2026-08-11T10:15:00.000000Z',$updated->json('next_run_at'));$this->actingAs($user)->patchJson("/api/automation/schedules/$scheduleId",['enabled'=>false])->assertOk()->assertJsonPath('next_run_at',null);\Illuminate\Support\Carbon::setTestNow('2026-08-11 11:00:00');$reenabled=$this->actingAs($user)->patchJson("/api/automation/schedules/$scheduleId",['enabled'=>true])->assertOk();$this->assertSame('2026-08-11T11:15:00.000000Z',$reenabled->json('next_run_at'));$definitionAutomation=app(AutomationDefinitionService::class)->create($org,$user,$this->definition(['name'=>'Definition schedule','trigger'=>['type'=>'schedule'],'conditions'=>['conditions'=>[]],'schedule'=>['type'=>'interval','intervalMinutes'=>15,'enabled'=>true]]));$this->assertTrue($definitionAutomation->schedules()->first()->next_run_at->equalTo($reenabled->json('next_run_at')));\Illuminate\Support\Carbon::setTestNow();}
- public function test_disabled_and_due_schedules_have_correct_execution_and_recurrence():void{\Illuminate\Support\Carbon::setTestNow('2026-08-11 10:00:00');[$org,$user]=$this->context($this->plan(['automation.basic','automation.advanced'],5));$automation=app(AutomationDefinitionService::class)->create($org,$user,$this->definition(['trigger'=>['type'=>'schedule'],'conditions'=>['conditions'=>[]],'schedule'=>['type'=>'interval','intervalMinutes'=>5,'enabled'=>true]]));$schedule=$automation->schedules()->first();$schedule->update(['enabled'=>false,'next_run_at'=>now()->subMinute()]);$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(0,$automation->executions()->count());$schedule->update(['enabled'=>true,'next_run_at'=>now()->subMinute()]);$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(1,$automation->executions()->count());$schedule->refresh();$this->assertTrue($schedule->last_run_at->equalTo('2026-08-11 09:59:00'));$this->assertTrue($schedule->next_run_at->equalTo('2026-08-11 10:04:00'));$this->artisan('automation:run-schedules')->assertSuccessful();$this->assertSame(1,$automation->executions()->count());\Illuminate\Support\Carbon::setTestNow();}
- public function test_event_history_requires_current_basic_entitlement_and_remains_organization_scoped():void{[$org,$user]=$this->context();$automation=app(AutomationDefinitionService::class)->create($org,$user,$this->definition());app(AutomationExecutionService::class)->execute($automation,'manual',['temperature'=>100]);[$otherOrg,$otherUser]=$this->context();$otherAutomation=app(AutomationDefinitionService::class)->create($otherOrg,$otherUser,$this->definition());app(AutomationExecutionService::class)->execute($otherAutomation,'manual',['temperature'=>100]);$this->actingAs($user)->getJson('/api/automation/events')->assertOk()->assertJsonCount(1,'data')->assertJsonPath('data.0.organization_id',$org->id);$noFeature=$this->plan([],5);$org->subscription()->update(['plan_id'=>$noFeature->id]);$this->actingAs($user)->getJson('/api/automation/events')->assertForbidden()->assertJson(['code'=>'FEATURE_NOT_AVAILABLE']);$admin=User::factory()->create(['organization_id'=>null,'role'=>'admin','platform_role'=>'platform_admin']);$this->actingAs($admin)->getJson('/api/automation/events')->assertForbidden();}
+
+use App\Models\AutomationExecution;
+use App\Models\DeviceAccessAssignment;
+use App\Models\Notification;
+use App\Models\Organization;
+use App\Models\ResourceRevision;
+use App\Models\User;
+use App\Services\Automation\AutomationDefinitionService;
+use App\Services\Automation\AutomationExecutionService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class AutomationPlatformTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function context(string $role = 'owner'): array
+    {
+        $organization = Organization::create(['name' => 'Org', 'slug' => 'org-'.uniqid()]);
+        $user = User::factory()->create(['organization_id' => $organization->id, 'role' => $role]);
+
+        return [$organization, $user];
+    }
+
+    private function definition(array $overrides = []): array
+    {
+        return array_replace_recursive(['name' => 'High temperature', 'enabled' => true, 'trigger' => ['type' => 'telemetry', 'field' => 'temperature'], 'conditions' => ['logic' => 'AND', 'conditions' => [['field' => 'temperature', 'operator' => '>', 'value' => 80]]], 'actions' => [['type' => 'notification', 'target' => 'organization', 'payload' => ['message' => 'Too hot']]]], $overrides);
+    }
+
+    public function test_crud_and_execution_have_no_commercial_dependency(): void
+    {
+        [$organization,$user] = $this->context();
+        $created = $this->actingAs($user)->postJson('/api/automations', $this->definition())->assertCreated();
+        $id = $created->json('id');
+        $this->actingAs($user)->getJson('/api/automations')->assertOk()->assertJsonCount(1, 'data');
+        $this->actingAs($user)->putJson("/api/automations/$id", ['name' => 'Renamed', 'baseRevisionId' => $created->json('baseRevisionId')])->assertOk();
+        $this->actingAs($user)->postJson("/api/automations/$id/execute", ['data' => ['temperature' => 100]])->assertOk()->assertJsonPath('status', 'completed');
+        $this->assertSame(1, Notification::where('organization_id', $organization->id)->count());
+    }
+
+    public function test_advanced_definition_is_available_without_entitlement(): void
+    {
+        [, $user] = $this->context();
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['conditions' => ['logic' => 'OR'], 'actions' => [['type' => 'notification', 'payload' => ['message' => 'One']], ['type' => 'notification', 'payload' => ['message' => 'Two']]]]))->assertCreated();
+    }
+
+    public function test_viewer_role_cannot_create_automation(): void
+    {
+        [, $viewer] = $this->context('viewer');
+        $this->actingAs($viewer)->postJson('/api/automations', $this->definition())->assertForbidden();
+    }
+
+    public function test_full_access_device_can_be_targeted_without_commercial_state(): void
+    {
+        [$organization,$user] = $this->context();
+        $device = $organization->devices()->create(['name' => 'Sensor', 'external_id' => 'sensor', 'type' => 'sensor', 'protocol' => 'mqtt']);
+        DeviceAccessAssignment::create(['device_id' => $device->id, 'user_id' => $user->id, 'access_level' => 'full_access']);
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['trigger' => ['type' => 'telemetry', 'deviceId' => $device->id, 'field' => 'temperature']]))->assertCreated();
+    }
+
+    public function test_viewer_and_unassigned_device_targets_are_denied(): void
+    {
+        [$organization,$user] = $this->context();
+        $viewer = $organization->devices()->create(['name' => 'Viewer', 'external_id' => 'viewer', 'type' => 'sensor', 'protocol' => 'mqtt']);
+        $hidden = $organization->devices()->create(['name' => 'Hidden', 'external_id' => 'hidden', 'type' => 'sensor', 'protocol' => 'mqtt']);
+        DeviceAccessAssignment::create(['device_id' => $viewer->id, 'user_id' => $user->id, 'access_level' => 'viewer']);
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['trigger' => ['deviceId' => $viewer->id]]))->assertForbidden();
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['trigger' => ['deviceId' => $hidden->id]]))->assertNotFound();
+    }
+
+    public function test_execution_is_idempotent(): void
+    {
+        [$organization,$user] = $this->context();
+        $automation = app(AutomationDefinitionService::class)->create($organization, $user, $this->definition());
+        $service = app(AutomationExecutionService::class);
+        $one = $service->execute($automation, 'manual', ['temperature' => 100], '11111111-1111-4111-8111-111111111111');
+        $two = $service->execute($automation, 'manual', ['temperature' => 100], '11111111-1111-4111-8111-111111111111');
+        $this->assertSame($one->id, $two->id);
+        $this->assertSame(1, AutomationExecution::count());
+    }
+
+    public function test_organization_isolation_hides_automations(): void
+    {
+        [$a,$userA] = $this->context();
+        [$b,$userB] = $this->context();
+        $automation = app(AutomationDefinitionService::class)->create($b, $userB, $this->definition());
+        $this->actingAs($userA)->getJson("/api/automations/$automation->id")->assertNotFound();
+        $this->assertSame(0, $a->automations()->count());
+    }
+
+    public function test_scheduled_execution_remains_system_authority(): void
+    {
+        [$organization,$user] = $this->context();
+        $automation = app(AutomationDefinitionService::class)->create($organization, $user, $this->definition(['trigger' => ['type' => 'schedule'], 'conditions' => ['conditions' => []], 'schedule' => ['type' => 'interval', 'intervalMinutes' => 5, 'enabled' => true]]));
+        $automation->schedules()->first()->update(['next_run_at' => now()->subMinute()]);
+        $this->artisan('automation:run-schedules')->assertSuccessful();
+        $this->assertSame(1, $automation->executions()->count());
+    }
+
+    public function test_authentication_cross_org_device_and_injected_authority_are_rejected(): void
+    {
+        [$organization,$user] = $this->context();
+        [$foreign,$foreignUser] = $this->context();
+        $device = $foreign->devices()->create(['name' => 'Foreign', 'external_id' => 'foreign-'.uniqid(), 'type' => 'sensor', 'protocol' => 'mqtt']);
+        $this->getJson('/api/automations')->assertUnauthorized();
+        $this->postJson('/api/automations', $this->definition())->assertUnauthorized();
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['trigger' => ['deviceId' => $device->id], 'organization_id' => $foreign->id, 'platform_role' => 'platform_admin', 'access_level' => 'full_access']))->assertUnprocessable();
+        $created = $this->actingAs($user)->postJson('/api/automations', [...$this->definition(), 'organization_id' => $foreign->id, 'platform_role' => 'platform_admin', 'access_level' => 'full_access'])->assertCreated();
+        $this->assertDatabaseHas('automations', ['id' => $created->json('id'), 'organization_id' => $organization->id]);
+        $this->assertDatabaseMissing('automations', ['organization_id' => $foreign->id, 'created_by' => $user->id]);
+    }
+
+    public function test_assignment_downgrade_blocks_configuration_but_not_system_runtime(): void
+    {
+        [$organization,$user] = $this->context();
+        $device = $organization->devices()->create(['name' => 'Pump', 'external_id' => 'pump-'.uniqid(), 'type' => 'sensor', 'protocol' => 'mqtt']);
+        $assignment = DeviceAccessAssignment::create(['device_id' => $device->id, 'user_id' => $user->id, 'access_level' => 'full_access']);
+        $created = $this->actingAs($user)->postJson('/api/automations', $this->definition(['trigger' => ['type' => 'telemetry', 'deviceId' => $device->id, 'field' => 'temperature']]))->assertCreated();
+        $assignment->update(['access_level' => 'viewer']);
+        $this->actingAs($user)->patchJson('/api/automations/'.$created->json('id'), ['name' => 'Forbidden'])->assertForbidden();
+        $automation = $organization->automations()->findOrFail($created->json('id'));
+        app(AutomationExecutionService::class)->execute($automation, 'telemetry', ['temperature' => 100]);
+        $this->assertSame(1, $automation->executions()->count());
+        $assignment->delete();
+        $this->actingAs($user)->postJson('/api/automations/'.$automation->id.'/enable')->assertNotFound();
+    }
+
+    public function test_parameter_keys_remain_backward_compatible_and_device_deletion_is_safe(): void
+    {
+        [$organization,$user] = $this->context();
+        $device = $organization->devices()->create(['name' => 'Sensor', 'external_id' => 'parameter-'.uniqid(), 'type' => 'sensor', 'protocol' => 'mqtt']);
+        DeviceAccessAssignment::create(['device_id' => $device->id, 'user_id' => $user->id, 'access_level' => 'full_access']);
+        $device->parameters()->create(['name' => 'Temperature', 'key' => 'temperature', 'data_type' => 'number']);
+        $known = $this->actingAs($user)->postJson('/api/automations', $this->definition(['name' => 'Known', 'trigger' => ['deviceId' => $device->id, 'field' => 'temperature']]))->assertCreated();
+        $this->actingAs($user)->postJson('/api/automations', $this->definition(['name' => 'Legacy raw', 'trigger' => ['deviceId' => $device->id, 'field' => 'legacy_metric']]))->assertCreated();
+        $device->delete();
+        $this->actingAs($user)->getJson('/api/automations/'.$known->json('id'))->assertOk()->assertJsonPath('triggerDevice.available', false)->assertJsonPath('triggerDevice.name', null);
+    }
+
+    public function test_history_is_real_scoped_and_paginated(): void
+    {
+        [$organization,$user] = $this->context();
+        $automation = app(AutomationDefinitionService::class)->create($organization, $user, $this->definition());
+        for ($i = 0; $i < 3; $i++) {
+            app(AutomationExecutionService::class)->execute($automation, 'manual', ['temperature' => 100]);
+        }$this->actingAs($user)->getJson("/api/automations/{$automation->id}/executions?perPage=2")->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('total', 3);
+        [, $foreign] = $this->context();
+        $this->actingAs($foreign)->getJson("/api/automations/{$automation->id}/executions")->assertNotFound();
+    }
+
+    public function test_update_uses_validated_payload_and_rejects_a_stale_base_before_mutation(): void
+    {
+        [$organization,$user] = $this->context();
+        $created = $this->actingAs($user)->postJson('/api/automations', $this->definition())->assertCreated();
+        $id = $created->json('id');
+        $base = $created->json('baseRevisionId');
+        $updated = $this->actingAs($user)->putJson("/api/automations/$id", ['name' => 'Safe name', 'baseRevisionId' => $base, 'organization_id' => 999999, 'created_by' => 999999, 'version' => 999999])->assertOk();
+        $this->assertNotSame($base, $updated->json('baseRevisionId'));
+        $this->assertDatabaseHas('automations', ['id' => $id, 'name' => 'Safe name', 'organization_id' => $organization->id, 'created_by' => $user->id]);
+        $this->actingAs($user)->putJson("/api/automations/$id", ['name' => 'Stale overwrite', 'baseRevisionId' => $base])->assertStatus(409);
+        $this->assertDatabaseHas('automations', ['id' => $id, 'name' => 'Safe name']);
+        $this->assertDatabaseMissing('automations', ['id' => $id, 'name' => 'Stale overwrite']);
+    }
+
+    public function test_definition_update_replays_same_committed_revision_after_response_loss(): void
+    {
+        [, $user] = $this->context();
+        $created = $this->actingAs($user)->postJson('/api/automations', $this->definition())->assertCreated();
+        $id = $created->json('id');
+        $base = $created->json('baseRevisionId');
+        $headers = ['Idempotency-Key' => '44444444-4444-4444-8444-444444444444'];
+        $first = $this->actingAs($user)->putJson("/api/automations/$id", ['name' => 'Idempotent', 'baseRevisionId' => $base], $headers)->assertOk()->assertJsonPath('saveOutcome.replayed', false);
+        $committed = $first->json('saveOutcome.committedRevisionId');
+        $this->actingAs($user)->putJson("/api/automations/$id", ['name' => 'Idempotent', 'baseRevisionId' => $base], $headers)->assertOk()->assertJsonPath('saveOutcome.replayed',true)->assertJsonPath('saveOutcome.committedRevisionId',$committed);
+        $this->assertSame(2,ResourceRevision::where(['resource_type' => 'automation', 'resource_id' => $id])->count());
+    }
 }

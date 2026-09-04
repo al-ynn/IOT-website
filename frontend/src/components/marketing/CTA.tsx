@@ -72,7 +72,7 @@ and automate your world.
 
 <Link
 
-to="/register"
+to="/login"
 
 className="
 mt-8

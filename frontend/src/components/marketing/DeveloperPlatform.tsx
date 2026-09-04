@@ -30,7 +30,7 @@ description:
 icon:Webhook,
 title:"Webhooks & Events",
 description:
-"Send real-time events to your existing systems."
+"Send supported signed events to your existing systems."
 },
 
 

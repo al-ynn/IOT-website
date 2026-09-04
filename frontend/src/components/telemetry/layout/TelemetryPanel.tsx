@@ -1,2 +1,70 @@
-import {useEffect,useMemo,useState} from "react";import {getDevices} from "../../../services/device.service";import {getDeviceMetrics,getTelemetryHistory} from "../../../services/analytics.service";import type {Device} from "../../../types/device";import type {AnalyticsAggregation,AnalyticsInterval,AnalyticsMetricSummary,AnalyticsRange,AnalyticsSeries} from "../../../types/analytics";import DeviceSelector from "../filters/DeviceSelector";import MetricSelector from "../filters/MetricSelector";import TimeRangeSelector from "../filters/TimeRangeSelector";import AggregationSelector from "../filters/AggregationSelector";import TelemetryChart from "../charts/TelemetryChart";import TelemetryStatistics from "../cards/TelemetryStatistics";import TelemetryTable from "../tables/TelemetryTable";import {Card,CardContent,CardHeader,EmptyState,ErrorState,LoadingState,Select} from "../../ui";
-export default function TelemetryPanel({fixedDeviceId,fixedMetric}:{fixedDeviceId?:string;fixedMetric?:string}){const [devices,setDevices]=useState<Device[]>([]);const [deviceId,setDeviceId]=useState(fixedDeviceId??'');const [metrics,setMetrics]=useState<AnalyticsMetricSummary[]>([]);const [metric,setMetric]=useState(fixedMetric??'');const [range,setRange]=useState<AnalyticsRange>('24h');const [dates,setDates]=useState({from:'',to:''});const [aggregation,setAggregation]=useState<AnalyticsAggregation>('average');const [interval,setInterval]=useState<AnalyticsInterval>('hour');const [chartType,setChartType]=useState<'line'|'area'|'bar'>('line');const [series,setSeries]=useState<AnalyticsSeries|null>(null);const [deviceQuery,setDeviceQuery]=useState('');const [metricQuery,setMetricQuery]=useState('');const [deviceLoading,setDeviceLoading]=useState(!fixedDeviceId);const [loading,setLoading]=useState(false);const [error,setError]=useState('');useEffect(()=>{if(fixedDeviceId)return;getDevices().then(data=>{setDevices(data);setDeviceId(current=>current||data[0]?.id||'')}).catch(()=>setError('Unable to load devices.')).finally(()=>setDeviceLoading(false))},[fixedDeviceId]);useEffect(()=>{if(!deviceId)return;setLoading(true);setError('');const custom=range==='custom'?dates:undefined;if(range==='custom'&&(!dates.from||!dates.to)){setLoading(false);return}getDeviceMetrics(deviceId,range,custom).then(data=>{setMetrics(data.metrics);setMetric(current=>fixedMetric??(data.metrics.some(m=>m.metric===current)?current:data.metrics[0]?.metric??''))}).catch(()=>setError('Unable to load available telemetry metrics.')).finally(()=>setLoading(false))},[deviceId,range,dates.from,dates.to,fixedMetric]);useEffect(()=>{if(!deviceId||!metric||(range==='custom'&&(!dates.from||!dates.to)))return;setLoading(true);setError('');getTelemetryHistory(metric,{deviceId,range,interval,aggregation,...(range==='custom'?dates:{})}).then(setSeries).catch(()=>setError('Unable to load telemetry history.')).finally(()=>setLoading(false))},[deviceId,metric,range,interval,aggregation,dates.from,dates.to]);const filteredDevices=useMemo(()=>devices.filter(d=>`${d.name} ${d.serialNumber}`.toLowerCase().includes(deviceQuery.toLowerCase())),[devices,deviceQuery]);const filteredMetrics=useMemo(()=>metrics.filter(m=>m.metric.toLowerCase().includes(metricQuery.toLowerCase())),[metrics,metricQuery]);if(error&&!deviceId)return <ErrorState description={error}/>;return <div className="space-y-4"><Card><CardContent className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">{!fixedDeviceId&&<DeviceSelector devices={filteredDevices} value={deviceId} onChange={setDeviceId} query={deviceQuery} onQueryChange={setDeviceQuery} loading={deviceLoading}/>}<MetricSelector metrics={filteredMetrics} value={metric} onChange={setMetric} query={metricQuery} onQueryChange={setMetricQuery}/><TimeRangeSelector range={range} onChange={setRange} from={dates.from} to={dates.to} onDatesChange={setDates}/><AggregationSelector aggregation={aggregation} onAggregation={setAggregation} interval={interval} onInterval={setInterval}/></CardContent></Card>{error&&<ErrorState description={error}/>} {!deviceId?<EmptyState title="Select a device" description="Choose a real organization device to inspect telemetry."/>:!metric&&!loading?<EmptyState title="No telemetry metrics" description="This device has not reported metrics for the selected range."/>:<><Card><CardHeader title={metric||'Telemetry visualization'} description={`${aggregation} · ${interval} intervals`} action={<Select aria-label="Chart type" value={chartType} onChange={e=>setChartType(e.target.value as typeof chartType)} className="w-28"><option value="line">Line</option><option value="area">Area</option><option value="bar">Bar</option></Select>}/><CardContent className="h-72">{loading&&!series?<LoadingState label="Loading telemetry..." className="h-full"/>:<TelemetryChart points={series?.points??[]} deviceId={deviceId} metric={metric} unit={series?.unit??null} type={chartType} loading={loading}/>}</CardContent></Card>{series&&<><TelemetryStatistics statistics={series.statistics} unit={series.unit}/><TelemetryTable points={series.points} metric={metric} unit={series.unit}/></>}</>}</div>}
+import { useEffect, useMemo, useState } from "react";
+import { getDevices } from "../../../services/device.service";
+import { getDeviceMetrics, getTelemetryHistory } from "../../../services/analytics.service";
+import type { Device } from "../../../types/device";
+import type { AnalyticsAggregation, AnalyticsInterval, AnalyticsMetricSummary, AnalyticsRange, AnalyticsSeries } from "../../../types/analytics";
+import DeviceSelector from "../filters/DeviceSelector";
+import MetricSelector from "../filters/MetricSelector";
+import TimeRangeSelector from "../filters/TimeRangeSelector";
+import AggregationSelector from "../filters/AggregationSelector";
+import TelemetryChart from "../charts/TelemetryChart";
+import TelemetryStatistics from "../cards/TelemetryStatistics";
+import TelemetryTable from "../tables/TelemetryTable";
+import { Card, CardContent, CardHeader, EmptyState, ErrorState, LoadingState, Select } from "../../ui";
+
+export default function TelemetryPanel({ fixedDeviceId, fixedMetric }: { fixedDeviceId?: string; fixedMetric?: string }) {
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [deviceId, setDeviceId] = useState(fixedDeviceId ?? "");
+  const [metrics, setMetrics] = useState<AnalyticsMetricSummary[]>([]);
+  const [metric, setMetric] = useState(fixedMetric ?? "");
+  const [range, setRange] = useState<AnalyticsRange>("24h");
+  const [dates, setDates] = useState({ from: "", to: "" });
+  const [aggregation, setAggregation] = useState<AnalyticsAggregation>("average");
+  const [interval, setInterval] = useState<AnalyticsInterval>("hour");
+  const [chartType, setChartType] = useState<"line" | "area" | "bar">("line");
+  const [series, setSeries] = useState<AnalyticsSeries | null>(null);
+  const [deviceQuery, setDeviceQuery] = useState("");
+  const [metricQuery, setMetricQuery] = useState("");
+  const [deviceLoading, setDeviceLoading] = useState(!fixedDeviceId);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const customRangeReady = range !== "custom" || Boolean(dates.from && dates.to);
+
+  useEffect(() => {
+    if (fixedDeviceId) return;
+    let active = true;
+    getDevices().then((data) => { if (active) { setDevices(data); setDeviceId((current) => current || data[0]?.id || ""); } }).catch(() => { if (active) setError("Unable to load devices."); }).finally(() => { if (active) setDeviceLoading(false); });
+    return () => { active = false; };
+  }, [fixedDeviceId]);
+
+  useEffect(() => {
+    if (!deviceId || !customRangeReady) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setLoading(true); setError("");
+      getDeviceMetrics(deviceId, range, range === "custom" ? dates : undefined)
+        .then((data) => { if (active) { setMetrics(data.metrics); setMetric((current) => fixedMetric ?? (data.metrics.some((item) => item.metric === current) ? current : data.metrics[0]?.metric ?? "")); } })
+        .catch(() => { if (active) setError("Unable to load available telemetry metrics."); })
+        .finally(() => { if (active) setLoading(false); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [customRangeReady, dates, deviceId, fixedMetric, range]);
+
+  useEffect(() => {
+    if (!deviceId || !metric || !customRangeReady) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setLoading(true); setError("");
+      getTelemetryHistory(metric, { deviceId, range, interval, aggregation, ...(range === "custom" ? dates : {}) })
+        .then((data) => { if (active) setSeries(data); })
+        .catch(() => { if (active) setError("Unable to load telemetry history."); })
+        .finally(() => { if (active) setLoading(false); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [aggregation, customRangeReady, dates, deviceId, interval, metric, range]);
+
+  const filteredDevices = useMemo(() => devices.filter((device) => `${device.name} ${device.serialNumber}`.toLowerCase().includes(deviceQuery.toLowerCase())), [devices, deviceQuery]);
+  const filteredMetrics = useMemo(() => metrics.filter((item) => item.metric.toLowerCase().includes(metricQuery.toLowerCase())), [metrics, metricQuery]);
+  if (error && !deviceId) return <ErrorState description={error}/>;
+  return <div className="space-y-4"><Card><CardContent className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">{!fixedDeviceId&&<DeviceSelector devices={filteredDevices} value={deviceId} onChange={setDeviceId} query={deviceQuery} onQueryChange={setDeviceQuery} loading={deviceLoading}/>}<MetricSelector metrics={filteredMetrics} value={metric} onChange={setMetric} query={metricQuery} onQueryChange={setMetricQuery}/><TimeRangeSelector range={range} onChange={setRange} from={dates.from} to={dates.to} onDatesChange={setDates}/><AggregationSelector aggregation={aggregation} onAggregation={setAggregation} interval={interval} onInterval={setInterval}/></CardContent></Card>{error&&<ErrorState description={error}/>} {!deviceId?<EmptyState title="Select a device" description="Choose a real organization device to inspect telemetry."/>:!metric&&!loading?<EmptyState title="No telemetry metrics" description="This device has not reported metrics for the selected range."/>:<><Card><CardHeader title={metric||"Telemetry visualization"} description={`${aggregation} · ${interval} intervals`} action={<Select aria-label="Chart type" value={chartType} onChange={event=>setChartType(event.target.value as typeof chartType)} className="w-28"><option value="line">Line</option><option value="area">Area</option><option value="bar">Bar</option></Select>}/><CardContent className="h-72">{loading&&!series?<LoadingState label="Loading telemetry..." className="h-full"/>:<TelemetryChart points={series?.points??[]} deviceId={deviceId} metric={metric} unit={series?.unit??null} type={chartType} loading={loading}/>}</CardContent></Card>{series&&<><TelemetryStatistics statistics={series.statistics} unit={series.unit}/><TelemetryTable points={series.points} metric={metric} unit={series.unit}/></>}</>}</div>;
+}

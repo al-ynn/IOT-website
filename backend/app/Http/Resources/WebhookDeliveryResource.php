@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Resources;use Illuminate\Http\Request;use Illuminate\Http\Resources\Json\JsonResource;
+class WebhookDeliveryResource extends JsonResource {public function toArray(Request $r):array{return ['id'=>(string)$this->id,'eventId'=>$this->event_uuid,'eventType'=>$this->event_type,'status'=>$this->status,'attemptCount'=>$this->attempt_count,'responseStatus'=>$this->response_status,'responseExcerpt'=>$this->response_excerpt,'errorCode'=>$this->error_code,'errorMessage'=>$this->error_message,'attemptedAt'=>$this->attempted_at?->toISOString(),'nextRetryAt'=>$this->next_retry_at?->toISOString(),'deliveredAt'=>$this->delivered_at?->toISOString(),'createdAt'=>$this->created_at?->toISOString()];}}

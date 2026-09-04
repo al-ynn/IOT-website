@@ -1,93 +1,42 @@
 import api from "./api";
-
-
-
-
-export async function getLifecycleHistory(
-
-deviceId:string
-
-){
-
-
-const response =
-
-await api.get(
-
-`/devices/${deviceId}/lifecycle`
-
-);
-
-
-
-return response.data;
-
-
+import type { ResourceLifecycle } from "../types/lifecycle";
+export async function getLifecycle(type: string, id: string) {
+  return (
+    await api.get<{ data: ResourceLifecycle }>(
+      `/resources/${type}/${id}/lifecycle`,
+    )
+  ).data.data;
 }
-
-
-
-
-
-export async function updateDeviceStatus(
-
-deviceId:string,
-
-status:string,
-
-description:string
-
-){
-
-
-const response =
-
-await api.post(
-
-`/devices/${deviceId}/lifecycle`,
-
-{
-
-
-status,
-
-
-description
-
-
+async function transition(
+  type: string,
+  id: string,
+  action: "disable" | "restore" | "archive",
+  current?: ResourceLifecycle,
+) {
+  return (
+    await api.post<{ data: ResourceLifecycle }>(
+      `/admin/resources/${type}/${id}/lifecycle/${action}`,
+      current
+        ? {
+            expectedLifecycle: current.state,
+            lifecycleGeneration: current.lifecycleGeneration,
+          }
+        : {},
+    )
+  ).data.data;
 }
-
-);
-
-
-
-return response.data;
-
-
-}
-
-
-
-
-
-export async function getMaintenanceHistory(
-
-deviceId:string
-
-){
-
-
-const response =
-
-await api.get(
-
-`/devices/${deviceId}/maintenance`
-
-);
-
-
-
-return response.data;
-
-
-}
+export const disableResource = (
+  type: string,
+  id: string,
+  current?: ResourceLifecycle,
+) => transition(type, id, "disable", current);
+export const restoreResource = (
+  type: string,
+  id: string,
+  current?: ResourceLifecycle,
+) => transition(type, id, "restore", current);
+export const archiveResource = (
+  type: string,
+  id: string,
+  current?: ResourceLifecycle,
+) => transition(type, id, "archive", current);

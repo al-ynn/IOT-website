@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @import "../design-system/themes/theme.css";
 
+.dashboard-grid .react-grid-item > .react-resizable-handle-se {
+  right: 5px;
+  bottom: 5px;
+  width: 16px;
+  height: 16px;
+  border-right: 2px solid var(--ds-text-muted);
+  border-bottom: 2px solid var(--ds-text-muted);
+  opacity: 0.75;
+}
+
+.dashboard-grid .react-grid-item.react-grid-placeholder {
+  border-radius: 8px;
+  background: var(--ds-primary);
+  opacity: 0.18;
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -206,3 +222,5 @@ button,a,input,select,textarea{transition-duration:180ms;transition-timing-funct
 :focus-visible{outline:2px solid var(--ds-primary);outline-offset:2px}
 input,select,textarea{font:inherit}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+aside.pointer-events-auto.absolute.left-0,
+aside.pointer-events-auto.absolute.right-0{position:sticky;}

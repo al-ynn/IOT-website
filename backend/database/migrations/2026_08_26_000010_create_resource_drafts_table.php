@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
+return new class extends Migration{public function up():void{Schema::create('resource_drafts',function(Blueprint $t){$t->id();$t->string('resource_type');$t->unsignedBigInteger('resource_id');$t->foreignId('user_id')->constrained()->cascadeOnDelete();$t->foreignId('base_revision_id')->constrained('resource_revisions')->restrictOnDelete();$t->unsignedSmallInteger('draft_schema_version')->default(1);$t->json('snapshot');$t->timestamps();$t->unique(['resource_type','resource_id','user_id']);$t->index(['user_id','updated_at']);$t->index('base_revision_id');});}public function down():void{Schema::dropIfExists('resource_drafts');}};

@@ -5,16 +5,20 @@ namespace App\Services\Analytics;
 use App\Models\Device;
 use App\Models\Organization;
 use App\Models\TelemetryRecord;
+use App\Models\User;
+use App\Services\Admin\DeviceAccessService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AnalyticsService
 {
-    public function summary(Organization $organization, Carbon $from, Carbon $to): array
+    public function __construct(private DeviceAccessService $deviceAccess) {}
+
+    public function summary(User $user, Carbon $from, Carbon $to): array
     {
-        $devices = $organization->devices();
-        $telemetry = $this->organizationTelemetry($organization)->whereBetween('recorded_at', [$from, $to]);
+        $devices = $this->deviceAccess->accessibleDevices($user);
+        $telemetry = TelemetryRecord::query()->whereIn('device_id', (clone $devices)->select('id'))->whereBetween('recorded_at', [$from, $to]);
 
         return [
             'totalDevices' => (clone $devices)->count(),
@@ -70,11 +74,6 @@ class AnalyticsService
             ],
             'points' => $points,
         ];
-    }
-
-    private function organizationTelemetry(Organization $organization): Builder
-    {
-        return TelemetryRecord::query()->whereHas('device', fn (Builder $query) => $query->where('organization_id', $organization->id));
     }
 
     private function metricSummaries(Builder $query): array

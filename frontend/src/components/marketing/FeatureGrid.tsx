@@ -31,10 +31,10 @@ icon:Cpu
 
 {
 
-title:"Real-Time Telemetry",
+title:"Device Telemetry",
 
 description:
-"Collect and visualize live device data instantly.",
+"Collect and inspect authenticated Device measurements.",
 
 icon:Activity
 

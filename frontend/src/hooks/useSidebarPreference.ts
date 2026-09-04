@@ -1,0 +1,2 @@
+import {useState} from "react";
+export default function useSidebarPreference(key:"primarySidebarCollapsed"|"secondarySidebarCollapsed",defaultValue=false){const [collapsed,setCollapsed]=useState(()=>{try{return window.localStorage.getItem(key)===null?defaultValue:window.localStorage.getItem(key)==="true"}catch{return defaultValue}});const toggle=()=>setCollapsed(current=>{const next=!current;try{window.localStorage.setItem(key,String(next))}catch{/* UI preference may remain session-only. */}return next});return [collapsed,toggle] as const}

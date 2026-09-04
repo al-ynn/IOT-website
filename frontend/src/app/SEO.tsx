@@ -15,7 +15,7 @@ return (
 
 <title>
 
-IOT-PLATFORM | Enterprise IoT Management Platform
+IOT-PLATFORM | IoT Operations Management
 
 </title>
 
@@ -27,7 +27,7 @@ name="description"
 content="
 Connect devices, monitor telemetry,
 automate operations,
-and gain AI-powered IoT intelligence.
+and inspect reproducible operational data.
 "
 
 />

@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
+return new class extends Migration{public function up():void{Schema::create('resource_editing_sessions',function(Blueprint $t){$t->uuid('id')->primary();$t->foreignId('user_id')->constrained()->cascadeOnDelete();$t->string('resource_type',64);$t->string('resource_id',64);$t->timestamp('started_at');$t->timestamp('last_heartbeat_at');$t->timestamp('expires_at');$t->unique(['user_id','resource_type','resource_id','id'],'editing_session_owner_unique');$t->index(['resource_type','resource_id','expires_at'],'editing_session_active_index');});}public function down():void{Schema::dropIfExists('resource_editing_sessions');}};

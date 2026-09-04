@@ -1,0 +1,7 @@
+import api from"./api";import type{Dashboard}from"../types/dashboard";
+export interface DashboardPublicationState{latestRevision:{id:string;number:number}|null;currentPublicationVersion:{id:string;number:number;revision:{id:string;number:number};publishedAt:string}|null;activeSubmission:{id:string;status:string;submittedRevision:{id:string;number:number};newerPrivateRevisionExists:boolean}|null;hasPrivateChanges:boolean}
+export interface PublishedDashboard extends Dashboard{scope:"published";widgetCount:number;currentPublicationVersion:{id:string;number:number;publishedAt:string};publishedRevision:{id:string;number:number}}
+export async function getDashboardPublicationState(id:string){return(await api.get<{data:DashboardPublicationState}>(`/dashboards/${id}/publication`)).data.data}
+export async function submitDashboardPublication(id:string,revisionId:string){return(await api.post(`/dashboards/${id}/publication-submissions`,{revision_id:Number(revisionId)})).data.data}
+export async function getPublishedDashboards(){return(await api.get<{data:PublishedDashboard[]}>("/dashboards/published/catalog")).data.data}
+export async function getPublishedDashboard(id:string){return(await api.get<{data:PublishedDashboard}>(`/dashboards/published/${id}`)).data.data}

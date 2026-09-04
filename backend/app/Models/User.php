@@ -23,14 +23,53 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
+    public function deviceAccessAssignments()
+    {
+        return $this->hasMany(DeviceAccessAssignment::class);
+    }
+
+    public function assignedDevices()
+    {
+        return $this->belongsToMany(Device::class, 'device_access_assignments')->withPivot(['access_level', 'assigned_by'])->withTimestamps();
+    }
+
+    public function monitoredDevicePreferences(){return $this->hasMany(UserMonitoredDevice::class);}
+    public function monitoredDevices(){return $this->belongsToMany(Device::class,'user_monitored_devices')->withTimestamps();}
+    public function dashboards(){return $this->hasMany(Dashboard::class, 'owner_user_id');}
+    public function initiatedProvisioningSessions(){return $this->hasMany(ProvisioningSession::class, 'initiated_by');}
+
     public function isPlatformAdmin(): bool
     {
-        return $this->platform_role === 'platform_admin';
+        return $this->isAdmin();
+    }
+
+    public function productRole(): string
+    {
+        return $this->platform_role === 'platform_admin' ? 'admin' : 'staff';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->productRole() === 'admin';
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->productRole() === 'staff';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
     }
 
     public function hasOrganizationPermission(string $permission): bool
     {
-        $map=['owner'=>['*'],'admin'=>['device.view','device.manage','dashboard.view','dashboard.manage','billing.view','billing.manage','organization.manage','members.manage','audit.view','automation.view','automation.create','automation.update','automation.delete','automation.execute','automation.manage','analytics.view'],'engineer'=>['device.view','device.manage','dashboard.view','dashboard.manage','automation.view','automation.create','automation.update','automation.delete','automation.execute','automation.manage','analytics.view'],'operator'=>['device.view','dashboard.view','automation.view','automation.execute','analytics.view'],'viewer'=>['device.view','dashboard.view','automation.view','analytics.view']];
+        if ($this->isAdmin() && $this->organization_id) {
+            return true;
+        }
+
+        $map=['owner'=>['*'],'admin'=>['device.view','device.manage','dashboard.view','dashboard.manage','organization.manage','members.manage','audit.view','automation.view','automation.create','automation.update','automation.delete','automation.execute','automation.manage','analytics.view'],'staff'=>['device.view','dashboard.view','automation.view','analytics.view'],'engineer'=>['device.view','device.manage','dashboard.view','dashboard.manage','automation.view','automation.create','automation.update','automation.delete','automation.execute','automation.manage','analytics.view'],'operator'=>['device.view','dashboard.view','automation.view','automation.execute','analytics.view'],'viewer'=>['device.view','dashboard.view','automation.view','analytics.view']];
         $granted=$map[$this->role]??[];
         return in_array('*',$granted,true)||in_array($permission,$granted,true);
     }

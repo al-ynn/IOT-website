@@ -12,7 +12,7 @@ const securityFeatures = [
 
     {
         icon: ShieldCheck,
-        title: "Enterprise Security",
+        title: "Operational Security",
         description:
             "Protect connected systems with secure infrastructure and best practices."
     },
@@ -90,7 +90,7 @@ text-cyan-400
 
 >
 
-Enterprise Ready
+Operations Ready
 
 </p>
 
@@ -122,7 +122,7 @@ text-gray-400
 
 >
 
-Manage users, devices, and data with enterprise-grade
+Manage users, devices, and data with organization-grade
 security controls.
 
 </p>

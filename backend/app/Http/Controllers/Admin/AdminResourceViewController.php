@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Controllers\Admin;use App\Http\Controllers\Controller;use App\Services\AdminResourceViewService;use Illuminate\Http\Request;
+final class AdminResourceViewController extends Controller{public function __construct(private AdminResourceViewService$views){}public function store(Request$request,string$type,string$id){return response()->json(['data'=>$this->views->mark($request->user(),$type,$id)]);}}

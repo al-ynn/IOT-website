@@ -1,0 +1,3 @@
+<?php
+namespace App\Revisions;use App\Models\DeviceTemplate;
+final class DeviceTemplateRevisionSnapshotBuilder{public const SCHEMA_VERSION=1;public function build(DeviceTemplate $t):array{$t->loadMissing('parameters');return ['metadata'=>['name'=>$t->name,'description'=>$t->description,'deviceType'=>$t->device_type,'protocol'=>$t->protocol],'parameters'=>$t->parameters->map(fn($p)=>['id'=>$p->id,'name'=>$p->name,'key'=>$p->key,'dataType'=>$p->data_type,'unit'=>$p->unit,'description'=>$p->description,'semantic'=>$p->semantic,'configuration'=>$p->configuration])->sortBy('id')->values()->all(),'dashboard'=>$t->dashboard_configuration];}}

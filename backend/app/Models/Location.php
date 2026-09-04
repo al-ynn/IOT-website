@@ -1,0 +1,3 @@
+<?php
+namespace App\Models;use Illuminate\Database\Eloquent\Model;
+final class Location extends Model{protected $fillable=['organization_id','name','normalized_name','description','latitude','longitude','created_by','semantic_updated_at'];protected $casts=['semantic_updated_at'=>'datetime','latitude'=>'decimal:7','longitude'=>'decimal:7'];public function organization(){return $this->belongsTo(Organization::class);}public function creator(){return $this->belongsTo(User::class,'created_by');}public function devices(){return $this->hasMany(Device::class);} }

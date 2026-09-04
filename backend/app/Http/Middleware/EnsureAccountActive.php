@@ -1,4 +1,20 @@
 <?php
+
 namespace App\Http\Middleware;
-use Closure;use Illuminate\Http\Request;use Symfony\Component\HttpFoundation\Response;
-class EnsureAccountActive{public function handle(Request $r,Closure $next):Response{abort_if($r->user()?->status==='suspended'||$r->user()?->organization?->status==='suspended',403,'Account is suspended.');return $next($r);}}
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+final class EnsureAccountActive
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+
+        abort_unless($user?->isActive(), 403, 'Account is inactive.');
+        abort_if($user->organization && $user->organization->status !== 'active', 403, 'Organization is inactive.');
+
+        return $next($request);
+    }
+}

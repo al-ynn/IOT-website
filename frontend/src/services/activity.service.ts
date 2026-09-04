@@ -1,26 +1,9 @@
-import { getAutomationLogs } from "./automation-log.service";
-import type { AutomationLog } from "../types/automation-log";
-
-export interface ActivityEvent {
-  id: string;
-  category: "automation";
-  title: string;
-  actor?: string;
-  resource: { type: "automation"; id: string; name: string };
-  timestamp: string;
-  status: AutomationLog["status"];
-  metadata: { executionId: string; duration?: number; error?: string };
-}
-
-export async function getActivity(): Promise<ActivityEvent[]> {
-  const logs = await getAutomationLogs();
-  return logs.map(log => ({
-    id: log.id,
-    category: "automation",
-    title: `Automation ${log.status === "success" ? "completed" : log.status}`,
-    resource: { type: "automation", id: log.automationId, name: log.automationName },
-    timestamp: log.executedAt,
-    status: log.status,
-    metadata: { executionId: log.id, duration: log.duration, error: log.error },
-  }));
-}
+import api from "./api";
+export type ActivityCategory="changes"|"comments"|"sharing"|"review"|"publication";
+export interface ActivityEvent{id:string;eventType:string;category:ActivityCategory;resourceType:string;resourceId:string;resourceLabel:string;actor:{id:string;displayName:string;inactive:boolean}|null;occurredAt:string;summary:string;deepLink:string;sectionKeys:string[];sections:{key:string;label:string;deepLinkTab:string}[];metadata:{revisionId?:string;revisionNumber?:number;threadId?:string;commentId?:string;shareRequestId?:string;publicationVersionId?:string;publicationNumber?:number}}
+export interface ActivityResponse{data:ActivityEvent[];meta:{current_page:number;per_page:number;total:number;last_page:number;bounded:boolean}}
+export interface ActivityFilters{category?:string;resource_type?:string;section?:string;date_from?:string;date_to?:string;page?:number;per_page?:number}
+export interface ActivityMetadata{categories:string[];resourceTypes:string[];eventTypes:string[];sectionsByResource:Record<string,{key:string;label:string}[]>}
+export async function getActivity(filters:ActivityFilters={}):Promise<ActivityResponse>{return(await api.get<ActivityResponse>("/activity",{params:filters})).data}
+export async function getResourceActivity(type:string,id:string,filters:Pick<ActivityFilters,"page"|"per_page">={}):Promise<ActivityResponse>{return(await api.get<ActivityResponse>(`/collaboration/resources/${type}/${id}/activity`,{params:filters})).data}
+export async function getActivityMetadata():Promise<ActivityMetadata>{return(await api.get<ActivityMetadata>("/activity/metadata")).data}

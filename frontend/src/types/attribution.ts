@@ -1,0 +1,2 @@
+export interface CollaborationIdentitySummary{id:string;displayName:string;state:"active"|"inactive"}
+export interface ResourceAttribution{resourceType:string;resourceId:string;creator:CollaborationIdentitySummary|null;contributors:(CollaborationIdentitySummary&{lastContributedAt?:string})[];contributorSemantics:"meaningful_configuration_revision_authors"}

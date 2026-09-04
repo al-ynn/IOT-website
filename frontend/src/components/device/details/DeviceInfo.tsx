@@ -1,3 +1,4 @@
+import ResourceAttribution from "../../collaboration/ResourceAttribution";
 import type {
 
 Device
@@ -98,7 +99,7 @@ Firmware:
 
 Location:
 
-{device.location ?? "Not Set"}
+{device.location?.name ?? "Unassigned"}
 
 </p>
 
@@ -106,6 +107,7 @@ Location:
 
 </div>
 
+{device.id&&<ResourceAttribution resourceType="device" resourceId={device.id}/>}
 
 </div>
 

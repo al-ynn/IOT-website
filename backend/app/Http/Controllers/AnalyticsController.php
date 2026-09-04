@@ -3,27 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Organization;
+use App\Services\Admin\DeviceAccessService;
 use App\Services\Analytics\AnalyticsService;
-use App\Services\Billing\BillingEntitlementService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class AnalyticsController extends Controller
 {
-    public function __construct(private AnalyticsService $analytics, private BillingEntitlementService $billing) {}
+    public function __construct(private AnalyticsService $analytics, private DeviceAccessService $deviceAccess) {}
 
     public function summary(Request $request)
     {
         $organization = $this->access($request);
         [$from, $to] = $this->range($request);
-        return response()->json($this->analytics->summary($organization, $from, $to));
+        return response()->json($this->analytics->summary($request->user(), $from, $to));
     }
 
     public function device(Request $request, string $device)
     {
         $organization = $this->access($request);
-        $ownedDevice = $organization->devices()->findOrFail($device);
+        $ownedDevice = $this->deviceAccess->findViewableDeviceOrFail($request->user(), $device);
         [$from, $to] = $this->range($request);
         return response()->json($this->analytics->device($ownedDevice, $from, $to));
     }
@@ -33,7 +33,7 @@ class AnalyticsController extends Controller
         $organization = $this->access($request);
         $data = $request->validate(['deviceId' => 'required|integer', 'range' => 'sometimes|in:1h,6h,12h,24h,7d,30d,custom', 'from' => 'required_if:range,custom|date', 'to' => 'required_if:range,custom|date', 'interval' => 'sometimes|in:minute,hour,day', 'aggregation' => 'sometimes|in:average,minimum,maximum,sum,count']);
         if (!preg_match('/^[A-Za-z0-9_.:-]{1,100}$/', $metric)) throw ValidationException::withMessages(['metric' => 'The metric format is invalid.']);
-        $device = $organization->devices()->findOrFail($data['deviceId']);
+        $device = $this->deviceAccess->findViewableDeviceOrFail($request->user(), $data['deviceId']);
         if (!$device->telemetryRecords()->where('key', $metric)->exists()) throw ValidationException::withMessages(['metric' => 'The selected metric does not exist for this device.']);
         [$from, $to] = $this->range($request);
         return response()->json($this->analytics->series($device, $metric, $from, $to, $data['interval'] ?? 'hour', $data['aggregation'] ?? 'average'));
@@ -43,7 +43,6 @@ class AnalyticsController extends Controller
     {
         $organization = $request->user()?->organization;
         abort_unless($organization && $request->user()->hasOrganizationPermission('analytics.view'), 403);
-        $this->billing->requireFeature($organization, 'analytics.advanced');
         return $organization;
     }
 

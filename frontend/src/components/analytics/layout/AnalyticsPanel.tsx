@@ -1,6 +1,34 @@
-import {useEffect,useState} from "react";import {Link} from "react-router-dom";import {getAnalyticsSummary} from "../../../services/analytics.service";import type {AnalyticsRange,AnalyticsSummary} from "../../../types/analytics";import TimeRangeSelector from "../../telemetry/filters/TimeRangeSelector";import TelemetryPanel from "../../telemetry/layout/TelemetryPanel";import KpiCard from "../cards/KpiCard";import AnalyticsUnavailable from "../states/AnalyticsUnavailable";import {Card,CardContent,CardHeader,DataTable,ErrorState,LoadingState} from "../../ui";
-export default function AnalyticsPanel(){
- const [summary,setSummary]=useState<AnalyticsSummary|null>(null);const [range,setRange]=useState<AnalyticsRange>('24h');const [dates,setDates]=useState({from:'',to:''});const [loading,setLoading]=useState(true);const [error,setError]=useState('');
- useEffect(()=>{if(range==='custom'&&(!dates.from||!dates.to)){setLoading(false);return}setLoading(true);setError('');getAnalyticsSummary(range,range==='custom'?dates:undefined).then(setSummary).catch(()=>setError('Unable to load organization analytics.')).finally(()=>setLoading(false))},[range,dates.from,dates.to]);
- return <div className="space-y-5"><Card><CardContent className="max-w-md"><TimeRangeSelector range={range} onChange={setRange} from={dates.from} to={dates.to} onDatesChange={setDates}/></CardContent></Card>{error&&<ErrorState description={error}/>} {loading&&<LoadingState label="Loading analytics..."/>}{!error&&!loading&&summary&&<><section aria-label="Analytics overview" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><KpiCard label="Devices" value={summary.totalDevices}/><KpiCard label="Telemetry records" value={summary.telemetryRecords} detail="Within selected range"/><KpiCard label="Metrics" value={summary.metrics.length}/><KpiCard label="Online / offline" value={`${summary.onlineDevices} / ${summary.offlineDevices}`}/></section><Card><CardHeader title="Latest measurements" description="Latest real value for each reported metric"/><DataTable rows={summary.metrics} getRowKey={m=>m.metric} caption="Latest organization measurements" empty="No metrics reported for this range." columns={[{key:'metric',header:'Metric',render:m=><Link to={`/app/analytics/metric/${encodeURIComponent(m.metric)}`} className="font-medium text-[var(--ds-text)] hover:text-[var(--ds-primary)]">{m.metric}</Link>},{key:'latest',header:'Latest',align:'right',render:m=>m.latest??'—'},{key:'unit',header:'Unit',render:m=>m.unit??'—'},{key:'count',header:'Records',align:'right',render:m=>m.count},{key:'time',header:'Latest timestamp',render:m=>m.latestTimestamp?new Date(m.latestTimestamp).toLocaleString():'—'}]}/></Card></>}<section><h2 className="mb-3 text-sm font-semibold">Trend analysis</h2><TelemetryPanel/></section><div className="grid gap-4 lg:grid-cols-2"><Card><CardHeader title="Comparison analytics"/><AnalyticsUnavailable title="Comparison unavailable" description="The backend does not provide cross-device or cross-metric comparison results."/></Card><Card><CardHeader title="Insights and recommendations"/><AnalyticsUnavailable title="No insights available" description="No analytics insight or recommendation service is configured."/></Card></div></div>
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getAnalyticsSummary } from "../../../services/analytics.service";
+import type { AnalyticsRange, AnalyticsSummary } from "../../../types/analytics";
+import TimeRangeSelector from "../../telemetry/filters/TimeRangeSelector";
+import TelemetryPanel from "../../telemetry/layout/TelemetryPanel";
+import KpiCard from "../cards/KpiCard";
+import AnalyticsUnavailable from "../states/AnalyticsUnavailable";
+import { Card, CardContent, CardHeader, DataTable, ErrorState, LoadingState } from "../../ui";
+
+export default function AnalyticsPanel() {
+  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
+  const [range, setRange] = useState<AnalyticsRange>("24h");
+  const [dates, setDates] = useState({ from: "", to: "" });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const customRangeReady = range !== "custom" || Boolean(dates.from && dates.to);
+
+  useEffect(() => {
+    if (!customRangeReady) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      setError("");
+      getAnalyticsSummary(range, range === "custom" ? dates : undefined)
+        .then((value) => { if (active) setSummary(value); })
+        .catch(() => { if (active) setError("Unable to load organization analytics."); })
+        .finally(() => { if (active) setLoading(false); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [customRangeReady, dates, range]);
+
+  return <div className="space-y-5"><Card><CardContent className="max-w-md"><TimeRangeSelector range={range} onChange={setRange} from={dates.from} to={dates.to} onDatesChange={setDates}/></CardContent></Card>{error&&<ErrorState description={error}/>} {loading&&<LoadingState label="Loading analytics..."/>}{!error&&!loading&&summary&&<><section aria-label="Analytics overview" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><KpiCard label="Devices" value={summary.totalDevices}/><KpiCard label="Telemetry records" value={summary.telemetryRecords} detail="Within selected range"/><KpiCard label="Metrics" value={summary.metrics.length}/><KpiCard label="Online / offline" value={`${summary.onlineDevices} / ${summary.offlineDevices}`}/></section><Card><CardHeader title="Latest measurements" description="Latest real value for each reported metric"/><DataTable rows={summary.metrics} getRowKey={m=>m.metric} caption="Latest organization measurements" empty="No metrics reported for this range." columns={[{key:"metric",header:"Metric",render:m=><Link to={`/app/analytics/metric/${encodeURIComponent(m.metric)}`} className="font-medium text-[var(--ds-text)] hover:text-[var(--ds-primary)]">{m.metric}</Link>},{key:"latest",header:"Latest",align:"right",render:m=>m.latest??"—"},{key:"unit",header:"Unit",render:m=>m.unit??"—"},{key:"count",header:"Records",align:"right",render:m=>m.count},{key:"time",header:"Latest timestamp",render:m=>m.latestTimestamp?new Date(m.latestTimestamp).toLocaleString():"—"}]}/></Card></>}<section><h2 className="mb-3 text-sm font-semibold">Trend analysis</h2><TelemetryPanel/></section><div className="grid gap-4 lg:grid-cols-2"><Card><CardHeader title="Comparison analytics"/><AnalyticsUnavailable title="Comparison unavailable" description="The backend does not provide cross-device or cross-metric comparison results."/></Card><Card><CardHeader title="Insights and recommendations"/><AnalyticsUnavailable title="No insights available" description="No analytics insight or recommendation service is configured."/></Card></div></div>;
 }

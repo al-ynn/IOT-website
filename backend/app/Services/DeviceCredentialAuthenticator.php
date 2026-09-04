@@ -1,0 +1,3 @@
+<?php
+namespace App\Services;use App\Models\DeviceCredential;
+class DeviceCredentialAuthenticator { public function authenticate(?string $token):?DeviceCredential{if(!$token||!preg_match('/^iotd_([0-9a-f-]{36})_([A-Za-z0-9_-]{43})$/i',$token,$m))return null;$credential=DeviceCredential::with('device.organization')->where('public_id',strtolower($m[1]))->first();if(!$credential||!$credential->isActive()||!hash_equals($credential->token_hash,hash('sha256',$m[2]))||!$credential->device)return null;if(app(ResourceLifecycleService::class)->state('device',$credential->device->id)!=='active')return null;if(!$credential->last_used_at||$credential->last_used_at->lt(now()->subMinutes(5)))$credential->forceFill(['last_used_at'=>now()])->save();return $credential;} }

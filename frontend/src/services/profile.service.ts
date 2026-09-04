@@ -7,7 +7,8 @@ import type {
 
     PasswordUpdate,
 
-    NotificationSettings
+    NotificationSettings,
+    NotificationPreferenceUpdate
 
 }
 
@@ -119,7 +120,7 @@ export async function getNotificationSettings(){
 
 export async function updateNotificationSettings(
 
-    data:NotificationSettings
+    data:NotificationPreferenceUpdate
 
 ){
 
@@ -127,7 +128,7 @@ export async function updateNotificationSettings(
 
     const response =
 
-        await api.put<NotificationSettings>(
+        await api.patch<NotificationSettings>(
 
             "/profile/notifications",
 
@@ -139,4 +140,8 @@ export async function updateNotificationSettings(
 
     return response.data;
 
+}
+export async function resetNotificationSettings(){
+    const response=await api.delete<NotificationSettings>("/profile/notifications");
+    return response.data;
 }

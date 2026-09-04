@@ -1,4 +1,4 @@
-export const colors={background:"#070b12",surface:"#0b111c",surfaceElevated:"#111a28",card:"#0d1522",border:"#1d2938",primary:"#3478f6",accent:"#22b8cf",success:"#22a06b",warning:"#d99a25",danger:"#df4b5f",text:"#f4f7fb",textMuted:"#8c9bae",textSubtle:"#5e6c7e"} as const;
+export const colors={background:"#070b12",surface:"#0b111c",surfaceElevated:"#111a28",card:"#0d1522",border:"#1d2938",primary:"#7db0ff",accent:"#22b8cf",success:"#22a06b",warning:"#d99a25",danger:"#df4b5f",text:"#f4f7fb",textMuted:"#a7b4c5",textSubtle:"#8492a6"} as const;
 export const spacing={xs:"4px",sm:"8px",md:"12px",lg:"16px",xl:"20px","2xl":"24px","3xl":"32px"} as const;
 export const radii={small:"6px",medium:"10px",large:"14px",full:"9999px"} as const;
 export const shadows={subtle:"0 1px 2px rgb(0 0 0 / 0.18)",card:"0 8px 24px rgb(0 0 0 / 0.16)",floating:"0 18px 48px rgb(0 0 0 / 0.28)"} as const;

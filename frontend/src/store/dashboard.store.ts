@@ -33,6 +33,10 @@ widgets:Widget[];
 
 selectedWidget:string|null;
 
+timeRange:"1h"|"6h"|"24h"|"7d"|"30d";
+
+setTimeRange:(range:"1h"|"6h"|"24h"|"7d"|"30d")=>void;
+
 
 
 setDashboard:
@@ -73,6 +77,8 @@ updateLayout:
 id:string,
 layout:Widget["layout"]
 )=>void;
+
+removeWidget:(id:string)=>void;
 
 
 
@@ -119,6 +125,10 @@ widgets:[],
 
 
 selectedWidget:null,
+
+timeRange:"24h",
+
+setTimeRange(timeRange){set({timeRange});},
 
 
 
@@ -252,6 +262,8 @@ widget
 
 
 },
+
+removeWidget(id){set(state=>({widgets:state.widgets.filter(widget=>widget.id!==id),selectedWidget:state.selectedWidget===id?null:state.selectedWidget}));},
 
 
 

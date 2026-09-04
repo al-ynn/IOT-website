@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Organization;
-use App\Models\Plan;
 use App\Models\TelemetryRecord;
 use App\Models\User;
+use App\Models\DeviceAccessAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -13,6 +13,7 @@ use Tests\TestCase;
 class AnalyticsPlatformTest extends TestCase
 {
     use RefreshDatabase;
+    private ?User $currentUser = null;
 
     protected function tearDown(): void
     {
@@ -20,18 +21,19 @@ class AnalyticsPlatformTest extends TestCase
         parent::tearDown();
     }
 
-    private function context(array $features = ['analytics.advanced'], string $role = 'owner'): array
+    private function context(string $role = 'owner'): array
     {
-        $plan = Plan::create(['id' => 'analytics-'.uniqid(), 'name' => 'Analytics', 'description' => '', 'price' => 49, 'currency' => 'USD', 'interval' => 'monthly', 'features' => $features, 'device_limit' => 10, 'user_limit' => 10, 'dashboard_limit' => 10, 'automation_limit' => 10, 'active' => true, 'is_default' => false]);
         $organization = Organization::create(['name' => 'Analytics Org', 'slug' => 'analytics-'.uniqid()]);
         $user = User::factory()->create(['organization_id' => $organization->id, 'role' => $role]);
-        $organization->subscriptions()->create(['plan_id' => $plan->id, 'status' => 'active', 'current_period_start' => now(), 'current_period_end' => now()->addMonth()]);
-        return [$organization, $user, $plan];
+        $this->currentUser = $user;
+        return [$organization, $user];
     }
 
     private function device(Organization $organization, string $name = 'Sensor', string $status = 'online')
     {
-        return $organization->devices()->create(['name' => $name, 'external_id' => uniqid('sensor-'), 'type' => 'sensor', 'protocol' => 'mqtt', 'status' => $status]);
+        $device = $organization->devices()->create(['name' => $name, 'external_id' => uniqid('sensor-'), 'type' => 'sensor', 'protocol' => 'mqtt', 'status' => $status]);
+        if ($this->currentUser?->organization_id === $organization->id) DeviceAccessAssignment::create(['device_id' => $device->id, 'user_id' => $this->currentUser->id, 'access_level' => 'full_access']);
+        return $device;
     }
 
     private function record($device, string $key, float $value, string $at, ?string $unit = null): TelemetryRecord
@@ -39,15 +41,13 @@ class AnalyticsPlatformTest extends TestCase
         return TelemetryRecord::create(['device_id' => $device->id, 'key' => $key, 'value' => $value, 'unit' => $unit, 'recorded_at' => Carbon::parse($at)]);
     }
 
-    public function test_analytics_requires_authentication_permission_and_entitlement(): void
+    public function test_analytics_requires_authentication_and_permission_only(): void
     {
         $this->getJson('/api/analytics/summary')->assertUnauthorized();
-        [, $guest] = $this->context(role: 'guest');
+        [, $guest] = $this->context('guest');
         $this->actingAs($guest)->getJson('/api/analytics/summary')->assertForbidden();
-        [, $free] = $this->context([]);
-        $this->actingAs($free)->getJson('/api/analytics/summary')->assertForbidden()->assertJson(['code' => 'FEATURE_NOT_AVAILABLE']);
-        [, $premium] = $this->context();
-        $this->actingAs($premium)->getJson('/api/analytics/summary')->assertOk();
+        [, $authorized] = $this->context();
+        $this->actingAs($authorized)->getJson('/api/analytics/summary')->assertOk();
     }
 
     public function test_summary_is_real_range_filtered_and_organization_scoped(): void
@@ -102,17 +102,9 @@ class AnalyticsPlatformTest extends TestCase
         $this->actingAs($user)->getJson('/api/analytics/summary?range=custom&from=2026-01-01T00:00:00Z&to=2026-08-01T00:00:00Z')->assertUnprocessable()->assertJsonValidationErrors('from');
     }
 
-    public function test_billing_downgrade_immediately_removes_analytics_access(): void
-    {
-        [$organization, $user] = $this->context();$this->actingAs($user)->getJson('/api/analytics/summary')->assertOk();
-        $free = Plan::create(['id' => 'free-downgrade', 'name' => 'Free', 'description' => '', 'price' => 0, 'currency' => 'USD', 'interval' => 'monthly', 'features' => [], 'device_limit' => 1, 'user_limit' => 1, 'dashboard_limit' => 1, 'automation_limit' => 0, 'active' => true, 'is_default' => true]);
-        $organization->subscription()->update(['plan_id' => $free->id]);
-        $this->actingAs($user)->getJson('/api/analytics/summary')->assertForbidden()->assertJson(['code' => 'FEATURE_NOT_AVAILABLE']);
-    }
-
     public function test_telemetry_ingestion_persists_the_record_used_by_analytics(): void
     {
-        [$organization, $user] = $this->context(['analytics.advanced', 'telemetry.basic']);$device = $this->device($organization);
+        [$organization, $user] = $this->context();$device = $this->device($organization);
         $this->actingAs($user)->postJson('/api/telemetry', ['device_id' => (string) $device->id, 'key' => 'voltage', 'value' => 230.5, 'unit' => 'V'])->assertOk();
         $this->assertDatabaseHas('telemetry_records', ['device_id' => $device->id, 'key' => 'voltage', 'value' => 230.5]);
         $this->actingAs($user)->getJson("/api/analytics/telemetry/voltage?deviceId=$device->id&range=1h&interval=minute&aggregation=average")->assertOk()->assertJsonPath('statistics.latest', 230.5)->assertJsonPath('points.0.value', 230.5);

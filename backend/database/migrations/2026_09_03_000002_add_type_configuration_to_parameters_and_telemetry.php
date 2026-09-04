@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
+return new class extends Migration{public function up():void{foreach(['device_template_parameters','device_parameters'] as $name)Schema::table($name,function(Blueprint $t){$t->json('configuration')->nullable();$t->string('semantic',40)->nullable();});Schema::table('telemetry_records',function(Blueprint $t){$t->json('typed_value')->nullable();});}public function down():void{Schema::table('telemetry_records',fn(Blueprint $t)=>$t->dropColumn('typed_value'));foreach(['device_template_parameters','device_parameters'] as $name)Schema::table($name,fn(Blueprint $t)=>$t->dropColumn(['configuration','semantic']));}};

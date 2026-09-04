@@ -1,0 +1,14 @@
+import api from "./api";import type{DeviceSharePermission,DashboardShareRecipient,PaginatedShares,ShareCandidate,ShareRequest,ShareResourceType}from"../types/sharing";
+export async function shareCandidatesFor(resourceType:ShareResourceType,resourceId:string,search=""){const r=await api.get<{data:ShareCandidate[]}>("/shares/candidates",{params:{resource_type:resourceType,resource_id:resourceId,search}});return r.data.data;}
+export async function shareCandidates(deviceId:string,search=""){return shareCandidatesFor("device",deviceId,search);}
+export async function createDeviceShare(deviceId:string,recipientId:number,permission:DeviceSharePermission,note:string){const r=await api.post<{data:ShareRequest}>("/shares",{resource_type:"device",resource_id:Number(deviceId),recipient_id:recipientId,permission,note:note||null});return r.data.data;}
+export async function createDashboardShare(dashboardId:string,recipientId:number,permission:"view"|"edit",note:string){const r=await api.post<{data:ShareRequest}>("/shares",{resource_type:"dashboard",resource_id:Number(dashboardId),recipient_id:recipientId,permission,note:note||null});return r.data.data;}
+export async function getShare(id:string){const r=await api.get<{data:ShareRequest}>(`/shares/${id}`);return r.data.data;}
+export async function acceptShare(id:number){const r=await api.post<{data:ShareRequest}>(`/shares/${id}/accept`);return r.data.data;}
+export async function declineShare(id:number){const r=await api.post<{data:ShareRequest}>(`/shares/${id}/decline`);return r.data.data;}
+export async function cancelShare(id:number){const r=await api.post<{data:ShareRequest}>(`/shares/${id}/cancel`);return r.data.data;}
+export async function adminAccessRequests(status="awaiting_admin_approval"){const r=await api.get<PaginatedShares>("/admin/access-requests",{params:{status}});return r.data;}
+export async function approveShare(id:number,permission:DeviceSharePermission){const r=await api.post<{data:ShareRequest}>(`/admin/access-requests/${id}/approve`,{permission});return r.data.data;}
+export async function rejectShare(id:number){const r=await api.post<{data:ShareRequest}>(`/admin/access-requests/${id}/reject`);return r.data.data;}export async function getDashboardShares(dashboardId:string){const r=await api.get<{data:DashboardShareRecipient[]}>(`/dashboards/${dashboardId}/shares`);return r.data.data;}
+export async function revokeDashboardShare(id:number){const r=await api.post<{data:ShareRequest}>(`/shares/${id}/revoke`);return r.data.data;}
+export async function changeDashboardPermission(id:number,permission:"view"|"edit"){const r=await api.patch<{data:ShareRequest}>(`/shares/${id}/permission`,{permission});return r.data.data;}

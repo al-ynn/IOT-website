@@ -1,0 +1,3 @@
+<?php
+namespace App\Models;use Illuminate\Database\Eloquent\Concerns\HasUuids;use Illuminate\Database\Eloquent\Model;
+class WebhookDelivery extends Model {use HasUuids;public const STATUSES=['pending','retrying','delivered','failed','cancelled'];public $incrementing=false;protected $keyType='string';protected $fillable=['id','webhook_id','webhook_revision_id','activation_submission_id','event_uuid','event_type','payload','status','attempt_count','response_status','response_excerpt','error_code','error_message','attempted_at','next_retry_at','delivered_at'];protected $casts=['payload'=>'array','attempted_at'=>'datetime','next_retry_at'=>'datetime','delivered_at'=>'datetime'];public function webhook(){return $this->belongsTo(Webhook::class)->withTrashed();} }

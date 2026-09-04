@@ -5,7 +5,7 @@ export default function Home(){return <>
  <PublicHero eyebrow="IoT operations platform" title="Turn connected-device data into reliable operations." description="Manage devices, stream telemetry, build analytics, and automate responses from one secure workspace."/>
  <PublicSection title="One platform for the complete IoT lifecycle" description="Move from first connection to production operations without stitching together separate tools."><FeatureCards items={[
   {title:"Devices",description:"Provision, organize, and monitor connected assets.",icon:Cpu},
-  {title:"Telemetry",description:"Ingest and inspect real-time device signals.",icon:Radio},
+  {title:"Telemetry",description:"Ingest and inspect authenticated Device measurements.",icon:Radio},
   {title:"Analytics",description:"Find patterns and track operational performance.",icon:BarChart3},
   {title:"Automation",description:"Trigger reliable actions from conditions and events.",icon:Workflow},
  ]}/></PublicSection>
@@ -16,5 +16,5 @@ export default function Home(){return <>
   {title:"Flexible integrations",description:"Connect existing services through APIs and event workflows.",icon:BellRing},
   {title:"Organization ready",description:"Give teams a shared, governed operational workspace.",icon:Building2},
  ]}/></PublicSection>
- <PublicHero eyebrow="Start building" title="Connect your first device today." description="Create a workspace and bring telemetry, dashboards, analytics, and automation together." primary={{label:"Create account",to:"/register"}} secondary={{label:"View pricing",to:"/pricing"}}/>
+ <PublicHero eyebrow="Start building" title="Connect your first device today." description="Sign in to bring telemetry, dashboards, analytics, and reports together." primary={{label:"Sign in",to:"/login"}} secondary={{label:"Explore features",to:"/features"}}/>
  </>}

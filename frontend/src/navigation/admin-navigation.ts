@@ -1,2 +1,0 @@
-import {Building2,CreditCard,LayoutDashboard,ServerCog,Users} from "lucide-react";import type {AppNavigationItem} from "./app-navigation";
-export const adminNavigation:AppNavigationItem[]=[{label:"Dashboard",path:"/admin/dashboard",icon:LayoutDashboard,end:true},{label:"Organizations",path:"/admin/organizations",icon:Building2},{label:"Users",path:"/admin/users",icon:Users},{label:"Billing",path:"/admin/billing",icon:CreditCard},{label:"System",path:"/admin/system",icon:ServerCog}];

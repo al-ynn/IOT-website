@@ -199,8 +199,8 @@ text-gray-400
 
 
 A complete IoT ecosystem for device management,
-real-time telemetry, automation, analytics,
-and AI-powered insights.
+Device telemetry, automation, analytics,
+and reproducible operational reports.
 
 
 </p>
@@ -227,7 +227,7 @@ sm:flex-row
 
 <Link
 
-to="/register"
+to="/login"
 
 className="
 flex
@@ -464,7 +464,7 @@ text-gray-400
 
 >
 
-Live Telemetry Visualization
+Telemetry Visualization
 
 </div>
 

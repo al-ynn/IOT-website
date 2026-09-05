@@ -1,40 +1,43 @@
 /*
-| IOT PLATFORM — Design Tokens (light + dark)
-| Palette: blue/slate/light-gray/white + yellow accent
-| Preserves --ds-* API used across the app.
+| IOT PLATFORM — Design Tokens v2 (light + dark)
+| Art direction: refs 8/9/10 (futuristic technical glass command-center)
+| Palette: ref 7 (blue/slate/gray/white + yellow accent)
 */
 
 :root, .theme-dark {
   color-scheme: dark;
 
-  /* Surfaces (deep slate family derived from #1F2937) */
-  --ds-bg: #0A0F1A;
-  --ds-surface: #0F172A;
-  --ds-surface-elevated: #1F2937;
-  --ds-card: #131C2C;
-  --ds-card-alt: #182238;
+  /* Surface hierarchy — 5 depth levels (bg → panel → card → elevated → overlay) */
+  --ds-bg: #06090F;
+  --ds-surface: #0C1220;
+  --ds-surface-elevated: #141C2E;
+  --ds-card: #101828;
+  --ds-card-alt: #1B2437;
+  --ds-overlay-panel: #1F2937;
 
   /* Borders */
   --ds-border: #2A3446;
-  --ds-border-strong: #3A4658;
-  --ds-border-subtle: rgb(219 234 254 / .09);
-  --ds-inset-highlight: rgb(255 255 255 / .04);
-  --ds-inset-shadow: rgb(0 0 0 / .35);
+  --ds-border-strong: #3D4A5F;
+  --ds-border-subtle: rgb(147 197 253 / .10);
+  --ds-border-luminous: rgb(59 130 246 / .45);
+  --ds-inset-highlight: rgb(255 255 255 / .05);
+  --ds-inset-shadow: rgb(0 0 0 / .4);
 
-  /* Brand + accents (from user palette) */
+  /* Brand + accents (ref 7) */
   --ds-primary: #3B82F6;
   --ds-primary-hover: #60A5FA;
   --ds-primary-strong: #2563EB;
   --ds-primary-soft: #93C5FD;
-  --ds-primary-surface: rgb(59 130 246 / .14);
-  --ds-primary-outline: rgb(59 130 246 / .38);
+  --ds-primary-surface: rgb(59 130 246 / .16);
+  --ds-primary-outline: rgb(59 130 246 / .40);
+  --ds-primary-glow: rgb(59 130 246 / .55);
 
   --ds-accent: #FACC15;
   --ds-accent-soft: #FDE68A;
   --ds-accent-surface: rgb(250 204 21 / .14);
-  --ds-accent-outline: rgb(250 204 21 / .38);
+  --ds-accent-outline: rgb(250 204 21 / .40);
 
-  /* Semantic (accessible; brief allows semantic treatment) */
+  /* Semantic */
   --ds-success: #34D399;
   --ds-success-surface: rgb(52 211 153 / .14);
   --ds-warning: #FACC15;
@@ -42,52 +45,56 @@
   --ds-danger: #F87171;
   --ds-danger-surface: rgb(248 113 113 / .14);
   --ds-info: #60A5FA;
-  --ds-info-surface: rgb(96 165 250 / .14);
+  --ds-info-surface: rgb(96 165 250 / .16);
 
   /* Text */
   --ds-text: #F3F4F6;
   --ds-text-muted: #9CA3AF;
   --ds-text-subtle: #6B7280;
-  --ds-text-inverse: #0A0F1A;
+  --ds-text-inverse: #06090F;
 
-  /* Focus + overlay */
   --ds-focus: #60A5FA;
-  --ds-overlay: rgb(2 6 14 / .72);
+  --ds-overlay: rgb(3 6 12 / .78);
 
   /* Depth / glow */
-  --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / .35);
-  --ds-shadow-md: 0 6px 18px rgb(0 0 0 / .35), 0 1px 0 rgb(255 255 255 / .04) inset;
-  --ds-shadow-lg: 0 20px 40px rgb(0 0 0 / .45), 0 1px 0 rgb(255 255 255 / .05) inset;
-  --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / .35), 0 0 24px -8px rgb(59 130 246 / .55);
-  --ds-glow-accent: 0 0 0 1px rgb(250 204 21 / .35), 0 0 24px -8px rgb(250 204 21 / .55);
+  --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+  --ds-shadow-md: 0 8px 24px rgb(0 0 0 / .45), 0 1px 0 rgb(255 255 255 / .05) inset;
+  --ds-shadow-lg: 0 24px 60px rgb(0 0 0 / .55), 0 1px 0 rgb(255 255 255 / .06) inset;
+  --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / .4), 0 0 28px -6px rgb(59 130 246 / .6);
+  --ds-glow-accent: 0 0 0 1px rgb(250 204 21 / .4), 0 0 28px -6px rgb(250 204 21 / .6);
+  --ds-glow-soft: 0 0 20px -6px rgb(59 130 246 / .35);
 
-  /* Grid backdrop */
-  --ds-grid-color: rgb(255 255 255 / .035);
-  --ds-grid-color-strong: rgb(59 130 246 / .07);
+  /* Backdrop pattern */
+  --ds-grid-color: rgb(147 197 253 / .05);
+  --ds-dot-color: rgb(147 197 253 / .07);
+  --ds-ambient-1: rgb(59 130 246 / .14);
+  --ds-ambient-2: rgb(59 130 246 / .07);
+  --ds-ambient-3: rgb(250 204 21 / .04);
 
-  /* Legacy aliases (kept for backwards compat with older files) */
-  --background: var(--ds-bg);
-  --surface: var(--ds-surface);
-  --card: var(--ds-card);
-  --border: var(--ds-border);
-  --primary: var(--ds-primary);
-  --iot-cyan: var(--ds-primary-soft);
+  /* Chart series (tonal variants of approved family) */
+  --ds-chart-1: #3B82F6;
+  --ds-chart-2: #93C5FD;
+  --ds-chart-3: #FACC15;
+  --ds-chart-4: #6B7280;
+  --ds-chart-grid: rgb(147 197 253 / .08);
 }
 
 .theme-light {
   color-scheme: light;
 
-  --ds-bg: #F3F4F6;
+  --ds-bg: #EEF2F7;
   --ds-surface: #FFFFFF;
   --ds-surface-elevated: #FFFFFF;
   --ds-card: #FFFFFF;
-  --ds-card-alt: #F9FAFB;
+  --ds-card-alt: #F3F4F6;
+  --ds-overlay-panel: #FFFFFF;
 
   --ds-border: #E5E7EB;
   --ds-border-strong: #D1D5DB;
   --ds-border-subtle: rgb(31 41 55 / .10);
-  --ds-inset-highlight: rgb(255 255 255 / .9);
-  --ds-inset-shadow: rgb(31 41 55 / .06);
+  --ds-border-luminous: rgb(59 130 246 / .5);
+  --ds-inset-highlight: rgb(255 255 255 / .95);
+  --ds-inset-shadow: rgb(31 41 55 / .07);
 
   --ds-primary: #3B82F6;
   --ds-primary-hover: #2563EB;
@@ -95,11 +102,12 @@
   --ds-primary-soft: #93C5FD;
   --ds-primary-surface: #DBEAFE;
   --ds-primary-outline: rgb(59 130 246 / .35);
+  --ds-primary-glow: rgb(59 130 246 / .4);
 
   --ds-accent: #EAB308;
   --ds-accent-soft: #FDE68A;
   --ds-accent-surface: #FEF9C3;
-  --ds-accent-outline: rgb(234 179 8 / .35);
+  --ds-accent-outline: rgb(234 179 8 / .4);
 
   --ds-success: #15803D;
   --ds-success-surface: #DCFCE7;
@@ -116,17 +124,30 @@
   --ds-text-inverse: #FFFFFF;
 
   --ds-focus: #2563EB;
-  --ds-overlay: rgb(15 23 42 / .45);
+  --ds-overlay: rgb(15 23 42 / .5);
 
-  --ds-shadow-sm: 0 1px 2px rgb(31 41 55 / .06);
-  --ds-shadow-md: 0 6px 16px rgb(31 41 55 / .08), 0 1px 0 rgb(255 255 255 / .8) inset;
-  --ds-shadow-lg: 0 18px 40px rgb(31 41 55 / .12), 0 1px 0 rgb(255 255 255 / .9) inset;
-  --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / .28), 0 0 22px -8px rgb(59 130 246 / .45);
-  --ds-glow-accent: 0 0 0 1px rgb(234 179 8 / .30), 0 0 22px -8px rgb(234 179 8 / .45);
+  --ds-shadow-sm: 0 1px 2px rgb(31 41 55 / .07);
+  --ds-shadow-md: 0 8px 20px rgb(59 130 246 / .10), 0 1px 0 rgb(255 255 255 / .9) inset;
+  --ds-shadow-lg: 0 20px 48px rgb(31 41 55 / .14), 0 1px 0 rgb(255 255 255 / .95) inset;
+  --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / .35), 0 0 24px -6px rgb(59 130 246 / .5);
+  --ds-glow-accent: 0 0 0 1px rgb(234 179 8 / .35), 0 0 24px -6px rgb(234 179 8 / .5);
+  --ds-glow-soft: 0 0 18px -6px rgb(59 130 246 / .25);
 
-  --ds-grid-color: rgb(31 41 55 / .045);
-  --ds-grid-color-strong: rgb(59 130 246 / .07);
+  --ds-grid-color: rgb(59 130 246 / .05);
+  --ds-dot-color: rgb(59 130 246 / .07);
+  --ds-ambient-1: rgb(59 130 246 / .10);
+  --ds-ambient-2: rgb(147 197 253 / .16);
+  --ds-ambient-3: rgb(250 204 21 / .06);
 
+  --ds-chart-1: #3B82F6;
+  --ds-chart-2: #93C5FD;
+  --ds-chart-3: #EAB308;
+  --ds-chart-4: #6B7280;
+  --ds-chart-grid: rgb(31 41 55 / .07);
+}
+
+/* Legacy aliases */
+:root, .theme-dark, .theme-light {
   --background: var(--ds-bg);
   --surface: var(--ds-surface);
   --card: var(--ds-card);

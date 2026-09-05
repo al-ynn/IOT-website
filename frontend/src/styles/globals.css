@@ -2,8 +2,9 @@
 @import "../design-system/themes/theme.css";
 
 /*
-| IOT PLATFORM — Global styles
-| Font: Geist (with sensible system fallback). Loaded in index.html.
+| IOT PLATFORM — Global styles v2
+| Visual language: refs 8/9/10 — layered glass, luminous edges,
+| technical grid + dot matrix, radial ambient glows.
 */
 
 @theme {
@@ -12,24 +13,8 @@
   --color-card: var(--ds-card);
   --color-border: var(--ds-border);
   --color-primary: var(--ds-primary);
-
-  --font-sans:
-    "Geist",
-    "Inter",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-
-  --font-mono:
-    "Geist Mono",
-    ui-monospace,
-    SFMono-Regular,
-    "SF Mono",
-    Menlo,
-    monospace;
+  --font-sans: "Geist","Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono: "Geist Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
 }
 
 * { box-sizing: border-box; border-color: var(--ds-border); }
@@ -40,92 +25,148 @@ body {
   margin: 0;
   background: var(--ds-bg);
   color: var(--ds-text);
-  font-family:
-    "Geist",
-    "Inter",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: "Geist","Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Tabular numerals for telemetry / KPIs */
-.tabular-nums,
-[data-numeric] {
+.tabular-nums, [data-numeric] {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
-/* Subtle technical grid backdrop for the app shell (very restrained) */
+/* ================= APP BACKDROP — layered technical scene ================= */
+/* Grid + dot matrix + radial blue ambient glows. No z-index tricks: the
+   pattern paints behind content via background attachment on ::before
+   with pointer-events off and no positioning side effects. */
 .app-backdrop {
   position: relative;
   background: var(--ds-bg);
+  isolation: isolate;
 }
 .app-backdrop::before {
   content: "";
   position: fixed;
   inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 480px at 12% -8%, var(--ds-ambient-1), transparent 60%),
+    radial-gradient(760px 420px at 88% -10%, var(--ds-ambient-2), transparent 60%),
+    radial-gradient(560px 560px at 96% 92%, var(--ds-ambient-3), transparent 60%);
+}
+.app-backdrop::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   pointer-events: none;
   background-image:
+    radial-gradient(circle, var(--ds-dot-color) 1px, transparent 1px),
     linear-gradient(var(--ds-grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--ds-grid-color) 1px, transparent 1px);
-  background-size: 48px 48px, 48px 48px;
-  mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 75%);
+  background-size: 22px 22px, 64px 64px, 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 0%, rgb(0 0 0 / .55) 45%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 0%, rgb(0 0 0 / .55) 45%, transparent 85%);
 }
 
-/* Utility surfaces */
+/* ================= SURFACE UTILITIES ================= */
 .surface-glass {
-  background: color-mix(in oklab, var(--ds-surface-elevated) 78%, transparent);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  background: color-mix(in oklab, var(--ds-surface-elevated) 72%, transparent);
+  backdrop-filter: saturate(150%) blur(16px);
+  -webkit-backdrop-filter: saturate(150%) blur(16px);
 }
 
 .surface-raised {
   background: var(--ds-card);
-  box-shadow:
-    var(--ds-shadow-md),
-    0 1px 0 var(--ds-inset-highlight) inset;
+  box-shadow: var(--ds-shadow-md), 0 1px 0 var(--ds-inset-highlight) inset;
 }
 
 .surface-inset {
   background: var(--ds-card-alt);
-  box-shadow:
-    inset 0 1px 2px var(--ds-inset-shadow),
-    inset 0 0 0 1px var(--ds-border-subtle);
+  box-shadow: inset 0 1px 2px var(--ds-inset-shadow), inset 0 0 0 1px var(--ds-border-subtle);
 }
 
-/* Refined focus ring */
+/* Luminous 1px top edge on premium panels */
+.luminous-top { position: relative; }
+.luminous-top::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    transparent 4%, var(--ds-primary-outline) 25%,
+    var(--ds-primary) 50%, var(--ds-primary-outline) 75%, transparent 96%);
+  opacity: .9;
+  pointer-events: none;
+}
+
+/* Technical corner ticks (ref 9/10 HUD detail) */
+.tech-corners { position: relative; }
+.tech-corners::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--ds-primary-outline), var(--ds-primary-outline)) top left / 10px 1px,
+    linear-gradient(var(--ds-primary-outline), var(--ds-primary-outline)) top left / 1px 10px,
+    linear-gradient(var(--ds-primary-outline), var(--ds-primary-outline)) bottom right / 10px 1px,
+    linear-gradient(var(--ds-primary-outline), var(--ds-primary-outline)) bottom right / 1px 10px;
+  background-repeat: no-repeat;
+  opacity: .8;
+}
+
+/* Gradient stroke ring (buttons, chips, focus) */
+.stroke-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--ds-surface-elevated), var(--ds-surface-elevated)) padding-box,
+    linear-gradient(120deg, var(--ds-primary), var(--ds-primary-soft)) border-box;
+}
+
+/* Luminous strip used inside widget headers / modals */
+.tech-strip {
+  background-image: linear-gradient(90deg,
+    transparent 0%, var(--ds-primary-outline) 30%,
+    var(--ds-primary) 50%, var(--ds-primary-outline) 70%, transparent 100%);
+}
+
+/* Small status pulse dot */
+.pulse-dot {
+  animation: pulse-dot 2.4s cubic-bezier(.4, 0, .6, 1) infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ds-success) 45%, transparent); }
+  50% { box-shadow: 0 0 0 5px transparent; }
+}
+
+/* ================= FOCUS / SELECTION / SCROLLBAR ================= */
 :focus-visible {
   outline: 2px solid var(--ds-focus);
   outline-offset: 2px;
   border-radius: 6px;
 }
-
-/* Selection */
 ::selection { background: var(--ds-primary); color: var(--ds-text-inverse); }
 
-/* Scrollbars — thin, palette-aware */
-::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--ds-border-strong) 60%, transparent);
+  background: color-mix(in oklab, var(--ds-border-strong) 70%, transparent);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--ds-primary) 55%, var(--ds-border-strong));
+  background: color-mix(in oklab, var(--ds-primary) 60%, var(--ds-border-strong));
   background-clip: padding-box;
   border: 2px solid transparent;
 }
 
-/* Motion */
+/* ================= MOTION ================= */
 button, a, input, select, textarea {
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
   transition-duration: 160ms;
@@ -143,7 +184,7 @@ button { cursor: pointer; }
   }
 }
 
-/* Dashboard grid handles (preserved) */
+/* ================= DASHBOARD GRID (preserved) ================= */
 .dashboard-grid .react-grid-item > .react-resizable-handle-se {
   right: -1px; bottom: -1px; width: 24px; height: 24px;
   border: 0; background: transparent; opacity: 0; transition: opacity 120ms ease;
@@ -159,21 +200,101 @@ button { cursor: pointer; }
 .dashboard-widget-drag-surface { cursor: grab; touch-action: none; }
 .dashboard-widget-drag-surface:active { cursor: grabbing; }
 .dashboard-grid .react-grid-item.react-grid-placeholder {
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--ds-primary);
   opacity: .18;
+  box-shadow: var(--ds-glow-primary);
 }
 
-/* Sticky secondary panels used by app layout */
 aside.pointer-events-auto.absolute.left-0,
 aside.pointer-events-auto.absolute.right-0 { position: sticky; }
 
-/* Subtle scan-line accent for premium widget headers */
-.tech-strip {
-  background-image: linear-gradient(90deg,
-    transparent 0%,
-    var(--ds-primary-outline) 30%,
-    var(--ds-primary) 50%,
-    var(--ds-primary-outline) 70%,
-    transparent 100%);
+/* ================= MAP THEME INTEGRATION ================= */
+.maplibregl-ctrl-group {
+  background: var(--ds-surface-elevated) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--ds-shadow-md) !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  background: transparent !important;
+  border-bottom: 1px solid var(--ds-border-subtle) !important;
+}
+.maplibregl-ctrl-group button:hover { background: var(--ds-primary-surface) !important; }
+.maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: invert(color-mix(in oklab, var(--ds-text) 0%, transparent));
+}
+.theme-dark .maplibregl-ctrl button .maplibregl-ctrl-icon { filter: invert(1); }
+.maplibregl-popup-content {
+  background: var(--ds-surface-elevated) !important;
+  color: var(--ds-text) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--ds-shadow-lg) !important;
+
+/* Thin luminous progress bar (Nova Glass skills rows) */
+.stat-bar {
+  position: relative;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ds-card-alt);
+  box-shadow: inset 0 1px 2px var(--ds-inset-shadow);
+}
+.stat-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ds-primary-strong), var(--ds-primary), var(--ds-primary-soft));
+  box-shadow: 0 0 8px -1px var(--ds-primary-glow);
+}
+
+/* Glowing icon chip (Nexus / Nova Glass feature icons) */
+.glow-chip {
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--ds-primary-soft);
+  background: linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 26%, transparent));
+  box-shadow:
+    inset 0 0 0 1px var(--ds-primary-outline),
+    inset 0 1px 0 rgb(255 255 255 / .08),
+    0 0 18px -6px var(--ds-primary-glow);
+}
+
+/* Read-only telemetry range (slider widget) — tactile track + glowing fill */
+.iot-range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ds-card-alt);
+  box-shadow: inset 0 1px 2px var(--ds-inset-shadow), inset 0 0 0 1px var(--ds-border-subtle);
+  cursor: default;
+}
+.iot-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / .4), 0 0 0 2px var(--ds-primary), 0 0 12px -2px var(--ds-primary-glow);
+}
+.iot-range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--ds-primary);
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / .4);
+}
+
+  padding: 10px 12px !important;
+}
+.maplibregl-popup-tip { border-top-color: var(--ds-surface-elevated) !important; }
+.maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--ds-surface) 80%, transparent) !important;
+  color: var(--ds-text-subtle) !important;
+  font-size: 10px !important;
 }

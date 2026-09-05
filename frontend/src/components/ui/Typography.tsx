@@ -2,16 +2,23 @@ import type { HTMLAttributes } from "react";
 import { cn } from "../../utils/cn";
 
 /*
-  Typography scale — compact, technical, precise.
-  Page titles are restrained (not oversized). Numeric telemetry uses tabular-nums.
+  Typography v2 — command-center hierarchy (refs: Nexus / Nova Glass):
+  gradient-accent page titles with luminous underline, compact sections,
+  tabular telemetry. Restrained sizes (no chunky headings).
 */
 export function PageTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h1
       className={cn(
-        "text-[20px] font-semibold tracking-tight text-[var(--ds-text)] sm:text-[22px]",
+        "w-fit text-[20px] font-bold tracking-tight text-[var(--ds-text)] sm:text-[22px]",
         className,
       )}
+      style={{
+        background: "linear-gradient(120deg, var(--ds-text) 55%, var(--ds-primary-soft))",
+        WebkitBackgroundClip: "text",
+        backgroundClip: "text",
+        color: "transparent",
+      }}
       {...props}
     />
   );
@@ -20,7 +27,10 @@ export function PageTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEle
 export function SectionTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn("text-[15px] font-semibold text-[var(--ds-text)]", className)}
+      className={cn(
+        "flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-[var(--ds-text)]",
+        className,
+      )}
       {...props}
     />
   );
@@ -48,7 +58,7 @@ export function Label({ className, ...props }: HTMLAttributes<HTMLSpanElement>) 
   return (
     <span
       className={cn(
-        "text-[11px] font-medium uppercase tracking-[.08em] text-[var(--ds-text-muted)]",
+        "text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--ds-text-muted)]",
         className,
       )}
       {...props}
@@ -56,7 +66,27 @@ export function Label({ className, ...props }: HTMLAttributes<HTMLSpanElement>) 
   );
 }
 
-/* Metric — large numeric with unit slot. Tabular numerals; restrained size. */
+/* Eyebrow — tiny technical overline with glowing dot (Nexus/Nova style) */
+export function Eyebrow({ className, ...props }: HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--ds-primary)]",
+        className,
+      )}
+      {...props}
+    >
+      <span
+        aria-hidden
+        className="h-1.5 w-1.5 rounded-full bg-[var(--ds-primary)]"
+        style={{ boxShadow: "0 0 6px 1px var(--ds-primary-glow)" }}
+      />
+      {props.children}
+    </span>
+  );
+}
+
+/* Metric — gradient numeric with unit slot; tabular numerals */
 export function Metric({
   value,
   unit,
@@ -65,15 +95,22 @@ export function Metric({
 }: { value: string | number; unit?: string } & HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn(
-        "inline-flex items-baseline gap-1 text-[26px] font-semibold leading-none tracking-tight text-[var(--ds-text)] tabular-nums",
-        className,
-      )}
+      className={cn("inline-flex items-baseline gap-1 text-[26px] font-bold leading-none tracking-tight tabular-nums", className)}
       data-numeric
+      style={{
+        background: "linear-gradient(135deg, var(--ds-text) 40%, var(--ds-primary-soft))",
+        WebkitBackgroundClip: "text",
+        backgroundClip: "text",
+        color: "transparent",
+      }}
       {...props}
     >
       {value}
-      {unit && <span className="text-sm font-medium text-[var(--ds-text-muted)]">{unit}</span>}
+      {unit && (
+        <span className="text-sm font-medium text-[var(--ds-text-muted)]" style={{ WebkitBackgroundClip: "initial", background: "none", color: "var(--ds-text-muted)" }}>
+          {unit}
+        </span>
+      )}
     </span>
   );
 }

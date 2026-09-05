@@ -4,13 +4,8 @@ import { cn } from "../../utils/cn";
 export type CardVariant = "default" | "elevated" | "interactive" | "glass" | "inset" | "accent";
 
 /*
-  Card system — layered surface hierarchy.
-  default    : neutral card
-  elevated   : raised with subtle inset highlight + soft shadow
-  interactive: hoverable card (subtle lift + primary edge)
-  glass      : semi-transparent panel for overlays/toolbars
-  inset      : recessed panel for editor / detail groups
-  accent     : subtle blue border + soft primary surface glow (selected/active)
+  Card v2 — Nova Glass / Nexus surface language:
+  glass layering, luminous borders, ambient corner glows, hover lift.
 */
 const variants: Record<CardVariant, string> = {
   default:
@@ -20,8 +15,8 @@ const variants: Record<CardVariant, string> = {
     "shadow-[var(--ds-shadow-md)]",
   interactive:
     "border border-[var(--ds-border-subtle)] bg-[var(--ds-card)] " +
-    "transition hover:-translate-y-px hover:border-[var(--ds-primary-outline)] " +
-    "hover:shadow-[var(--ds-shadow-md)]",
+    "transition hover:-translate-y-0.5 hover:border-[var(--ds-primary-outline)] " +
+    "hover:shadow-[var(--ds-glow-soft),var(--ds-shadow-md)]",
   glass:
     "border border-[var(--ds-border-subtle)] surface-glass",
   inset:
@@ -39,11 +34,7 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement> & { variant?: CardVariant }) {
   return (
     <div
-      className={cn(
-        "rounded-[12px] relative overflow-hidden",
-        variants[variant],
-        className,
-      )}
+      className={cn("rounded-[14px] relative overflow-hidden", variants[variant], className)}
       {...props}
     />
   );
@@ -65,17 +56,22 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        "flex items-start justify-between gap-3 border-b border-[var(--ds-border-subtle)] px-4 py-3",
+        "relative flex items-start justify-between gap-3 border-b border-[var(--ds-border-subtle)] px-4 py-3",
         className,
       )}
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in oklab, var(--ds-surface-elevated) 55%, transparent), transparent)",
+      }}
     >
       <div className="min-w-0">
         {eyebrow && (
-          <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--ds-text-subtle)]">
+          <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--ds-primary)]">
+            <span aria-hidden className="h-1 w-1 rounded-full bg-[var(--ds-primary)]" style={{ boxShadow: "0 0 5px 1px var(--ds-primary-glow)" }} />
             {eyebrow}
           </p>
         )}
-        <h3 className="truncate text-[13.5px] font-semibold text-[var(--ds-text)]">
+        <h3 className="truncate text-[13px] font-semibold text-[var(--ds-text)]">
           {title}
         </h3>
         {description && (
@@ -101,7 +97,7 @@ export function CardFooter({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-2 border-t border-[var(--ds-border-subtle)] px-4 py-3",
+        "flex items-center justify-between gap-2 border-t border-[var(--ds-border-subtle)] bg-[var(--ds-card-alt)] px-4 py-3",
         className,
       )}
       {...props}

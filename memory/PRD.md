@@ -47,3 +47,30 @@ Preserve ALL functionality, APIs, DB, auth, routes, customization, widgets. Chan
 - Login verified end-to-end: admin@iot-platform.test / Admin123! → token → /app/dashboard renders with all widgets (switch, slider, label, device count, device table, geomap, image map, metrics charts) in BOTH dark + light themes
 - Bug fixed: `.app-backdrop > * { position: relative }` was overriding fixed sidebar positioning and pushing content below the fold — removed; desktop/mobile verified, zero horizontal overflow
 - Known platform-level (not app) note: the `*.cluster-7.preview.emergentcf.cloud` preview domain returns 403 from Google LB — the primary `*.preview.emergentagent.com` preview URL works correctly
+
+## Second Deep Redesign Pass (2026-02, after rejection of pass 1)
+User rejected pass 1 as "token swap / too close to original". Reference zips re-studied: refs 8/9/10 (futuristic glass command-center) define identity, ref 7 defines palette.
+
+### Rebuilt in pass 2:
+- theme.css v2: 5-level surface hierarchy, luminous border tokens, ambient glow tokens, chart series tokens
+- globals.css v2: layered backdrop (radial ambient glows + 64px grid + 22px dot matrix via ::before/::after, no layout side effects), utilities: luminous-top, tech-corners, stroke-gradient, pulse-dot, surface-glass/raised/inset, full MapLibre theme integration (controls, popups, attribution)
+- PrimarySidebar: gradient brand chip with glow, section labels with gradient hairlines, active = luminous blue pill + left beam + glow dot, "Systems nominal" status footer with pulse
+- SecondarySidebar: ambient top glow, luminous "Current area" header, beam-style selected states
+- AppHeader: glass bar (backdrop-blur-xl) + tech-strip luminous bottom edge, bordered icon buttons
+- UserMenu: gradient avatar, elevated dropdown with luminous top, role chip
+- SearchCommand: luminous command dialog with gradient submit
+- NotificationBell: gradient unread badge with glow, unread rows get luminous top + glow dot + NEW chip
+- DashboardWidget frame v2: tech-corners + luminous-top + gradient header band + glowing type dot + hover glow lift
+- MetricWidget v2: gradient-text KPI value, icon trend chip, gradient accent underline
+- GaugeWidget v2: 24-tick instrument bezel, gradient conic arc with glow, recessed dial
+- StatusWidget v2: recessed beacon panel with glowing orb + pulse for online
+- DeviceWidget v2: gradient icon chip, status pill, inset telemetry panel with gradient battery bar
+- ChartFrame v2: SVG gradient defs (area fill, line stroke, bar fill), feGaussianBlur line glow, endpoint marker halo, dashed grid, gradient rounded bars
+- components/auth/AuthLayout v2: full command-center entrance (grid+dots+glow backdrop, glass panel, corner ticks, gradient logo, "Secure access" footer)
+- SecondarySidebar typed with ResolvedSecondaryNavigation (removed any)
+
+### Verified:
+- yarn lint: clean
+- tsc: only 3 pre-existing errors in admin pages (untouched)
+- yarn build: succeeds (15s, rolldown)
+- Screenshots: login (dark, glass+grid), dashboard dark (luminous widgets), devices light (blue-tinted light theme), mobile 390px zero overflow

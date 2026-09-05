@@ -36,26 +36,27 @@ export default function ChartFrame({ records, type, loading = false, error }: { 
         <title>{description}</title>
         <defs>
           <linearGradient id="iot-area-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--ds-primary)" stopOpacity=".38" />
-            <stop offset="100%" stopColor="var(--ds-primary)" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--ds-chart-1)" stopOpacity=".55" />
+            <stop offset="55%" stopColor="var(--ds-chart-1)" stopOpacity=".18" />
+            <stop offset="100%" stopColor="var(--ds-chart-1)" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="iot-line-stroke" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="var(--ds-primary-strong)" />
-            <stop offset="60%" stopColor="var(--ds-primary)" />
-            <stop offset="100%" stopColor="var(--ds-primary-soft)" />
+            <stop offset="0%" stopColor="var(--ds-chart-1)" />
+            <stop offset="70%" stopColor="var(--ds-primary-soft)" />
+            <stop offset="100%" stopColor="var(--ds-chart-3)" />
           </linearGradient>
-          <linearGradient id="iot-bar-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--ds-primary-soft)" />
-            <stop offset="100%" stopColor="var(--ds-primary-strong)" />
-          </linearGradient>
-          <filter id="iot-line-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <filter id="iot-line-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4.5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
+        {/* plotting dots at grid intersections */}
+        {ticks.map((step) => [0, 1, 2, 3, 4].map((col) => (
+          <circle key={`${step}-${col}`} cx={PAD + (col * plotWidth) / 4} cy={PAD + (step * plotHeight) / 4} r="1" fill="var(--ds-border-luminous)" opacity=".5" />
+        )))}
         {ticks.map((step) => (
           <g key={step}>
             <line x1={PAD} x2={WIDTH - PAD} y1={PAD + (step * plotHeight) / 4} y2={PAD + (step * plotHeight) / 4} stroke="var(--ds-chart-grid)" strokeDasharray="2 5" />
@@ -102,15 +103,16 @@ export default function ChartFrame({ records, type, loading = false, error }: { 
               points={points}
               fill="none"
               stroke="url(#iot-line-stroke)"
-              strokeWidth="2.5"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
               filter="url(#iot-line-glow)"
             />
             {type === "line" && (
               <g>
-                <circle cx={x(records.length - 1)} cy={y(lastPoint.value)} r="8" fill="var(--ds-primary)" opacity=".18" />
-                <circle cx={x(records.length - 1)} cy={y(lastPoint.value)} r="3.5" fill="var(--ds-primary)" stroke="var(--ds-card)" strokeWidth="1.5" />
+                <circle cx={x(records.length - 1)} cy={y(lastPoint.value)} r="11" fill="var(--ds-chart-3)" opacity=".22" />
+                <circle cx={x(records.length - 1)} cy={y(lastPoint.value)} r="6" fill="none" stroke="var(--ds-chart-3)" strokeWidth="1.5" opacity=".8" />
+                <circle cx={x(records.length - 1)} cy={y(lastPoint.value)} r="3.5" fill="var(--ds-chart-3)" stroke="var(--ds-card)" strokeWidth="1.5" />
               </g>
             )}
           </>

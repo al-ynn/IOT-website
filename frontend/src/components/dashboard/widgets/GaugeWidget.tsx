@@ -28,25 +28,30 @@ export default function GaugeWidget({
             "0 0 0 1px var(--ds-border-luminous), 0 0 26px -6px var(--ds-primary-glow), inset 0 2px 6px rgb(0 0 0 / .5)",
         }}
       >
-        {ticks.map((deg, i) => (
+        {ticks.map((deg, i) => {
+          const threshold = (i / 24) * 100;
+          const lit = threshold <= percent;
+          const hot = threshold >= 78;
+          return (
           <span
             key={deg}
             aria-hidden
             className="absolute left-1/2 top-1/2 h-[3px] w-[1.5px] rounded-full"
             style={{
-              background: i <= (percent / 100) * 24 ? "var(--ds-primary-soft)" : "color-mix(in oklab, var(--ds-text-subtle) 35%, transparent)",
-              boxShadow: i <= (percent / 100) * 24 ? "0 0 4px var(--ds-primary-glow)" : "none",
+              background: lit ? (hot ? "var(--ds-chart-3)" : "var(--ds-primary-soft)") : "color-mix(in oklab, var(--ds-text-subtle) 35%, transparent)",
+              boxShadow: lit ? `0 0 4px ${hot ? "var(--ds-chart-3)" : "var(--ds-primary-glow)"}` : "none",
               transform: `rotate(${deg}deg) translateY(-60px)`,
               opacity: i % 6 === 0 ? 1 : 0.5,
             }}
           />
-        ))}
+          );
+        })}
         <div
           aria-hidden
           className="absolute inset-[7px] rounded-full"
           style={{
-            background: `conic-gradient(from 180deg, var(--ds-primary-strong), var(--ds-primary) ${percent * 0.75}%, var(--ds-primary-soft) ${percent}%, transparent ${percent}%)`,
-            filter: "drop-shadow(0 0 6px var(--ds-primary-glow))",
+            background: `conic-gradient(from 180deg, var(--ds-primary-strong), var(--ds-primary) ${percent * 0.55}%, var(--ds-primary-soft) ${percent * 0.85}%, var(--ds-chart-3) ${percent}%, transparent ${percent}%)`,
+            filter: "drop-shadow(0 0 7px var(--ds-primary-glow))",
             mask: "radial-gradient(farthest-side, transparent calc(100% - 8px), black calc(100% - 7px))",
             WebkitMask: "radial-gradient(farthest-side, transparent calc(100% - 8px), black calc(100% - 7px))",
           }}

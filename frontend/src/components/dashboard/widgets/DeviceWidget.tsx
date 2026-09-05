@@ -58,8 +58,10 @@ export default function DeviceWidget({ device }: { device: Device }) {
                 className="absolute inset-y-0 left-0 rounded-full"
                 style={{
                   width: `${device.battery}%`,
-                  background: "linear-gradient(90deg, var(--ds-primary), var(--ds-primary-soft))",
-                  boxShadow: "0 0 6px 0 var(--ds-primary-glow)",
+                  background: device.battery <= 25
+                    ? "linear-gradient(90deg, var(--ds-chart-4), var(--ds-chart-3))"
+                    : "linear-gradient(90deg, var(--ds-chart-1), var(--ds-primary-soft))",
+                  boxShadow: `0 0 8px 0 ${device.battery <= 25 ? "var(--ds-chart-3)" : "var(--ds-primary-glow)"}`,
                 }}
               />
             </span>

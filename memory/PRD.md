@@ -97,3 +97,19 @@ User asked: fix wrapping/margins/dead space, smallest widget size must stay read
 - label widget: vertical centering + glow; connection map: full-height stretched chip rows w/ green/red status; metric_by_devices: space-evenly full-height rows; device_table: sticky header, vibrant status dots
 - Map tiles auto-dark in dark mode via CSS filter (no MapLibre config change)
 - Verified: lint 0 errors, tsc clean, build OK, screenshot both themes, 0 widget overlaps
+
+## Sixth Pass — Yellow Pop + Graph Enhancement (2026-02)
+- ChartFrame: stronger 3-stop area gradient (.55 opacity), blue→yellow line stroke, thicker 3px glowing line, yellow pulsing endpoint marker (double ring), grid-intersection dots
+- Gauge: arc now ends in yellow tip (chart-3), ticks above 78% glow yellow (hot zone)
+- events_by_* bars: orange→yellow gradient with yellow glow + glowing yellow counts
+- latest_events: yellow zap icon chips with glow rings (replaces plain dots)
+- DeviceWidget battery: yellow-orange gradient + glow when ≤25%
+- Verified: lint 0, tsc clean, build OK, screenshots confirm gauge/status/charts/tables all match neon reference
+
+## Seventh Pass — Big-Icon KPIs + CSS Structure Fix (2026-02)
+- switch widget: big glowing power-icon chip (yellow gradient when ON, inset when OFF) beside the tactile toggle
+- slider widget: big blue glowing sliders-icon chip beside the gradient track
+- label widget: big violet tag-icon chip beside the glowing text
+- globals.css: fixed a missing closing brace in .maplibregl-popup-content that had been silently swallowing every rule after it (stat-bar, glow-chip, dark map filter, iot-range); removed an orphaned duplicate block at EOF; added balance check (CSS BALANCED OK)
+- .theme-dark .maplibregl-canvas filter now applies (verified served CSS contains rule at top level)
+- Verified: lint 0, build OK

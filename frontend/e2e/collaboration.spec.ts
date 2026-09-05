@@ -141,7 +141,7 @@ test("open Device access is revoked by Admin and disappears on the next protecte
   await admin.goto("http://127.0.0.1:15173/admin/device-access");await expect(admin).toHaveURL(/\/admin\/device-access/);
   await viewer.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");await viewer.getByRole("link",{name:/Open Phase103 Shared Temperature Device/}).click();await expect(viewer.getByRole("heading",{name:"Phase103 Shared Temperature Device"})).toBeVisible();
   const removed=await admin.evaluate(async()=>{const headers={Authorization:`Bearer ${localStorage.getItem("iot_token")}`,Accept:"application/json","Content-Type":"application/json"};const list=await fetch("/api/admin/device-access?search=Phase103%20Device%20Viewer",{headers});const body=await list.json();const assignment=body.data.find((item:{user:{email:string}})=>item.user.email==="viewer@phase103.test");const response=await fetch(`/api/admin/device-access/${assignment.id}`,{method:"DELETE",headers});return response.status;});expect(removed).toBe(204);
-  await viewer.reload();await expect(viewer.getByText("Device not found or unavailable.")).toBeVisible();await viewer.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");await expect(viewer.getByText("No accessible resources found.")).toBeVisible();
+  await viewer.reload();await expect(viewer.getByText("Device not found or unavailable.")).toBeVisible();const searchResponse=viewer.waitForResponse(response=>response.url().includes("/api/search?q=PHASE103-D1")&&response.request().method()==="GET");await viewer.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");await searchResponse;await expect(viewer.getByText("No accessible resources found.")).toBeVisible();
   await viewerContext.close();await adminContext.close();
 });
 

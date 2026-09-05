@@ -306,6 +306,14 @@ aside.pointer-events-auto.absolute.right-0 { position: sticky; }
   .kpi-chips { display: none; }
 }
 
+/* Dense list widgets (metric-by-devices, connection map) compact at small sizes */
+@container widget (max-width: 300px) {
+  .conn-grid { grid-template-columns: 1fr; }
+  .dense-row { padding: 4px 8px; gap: 6px; }
+  .dense-row .row-sub { display: none; }
+}
+
+
   background: linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 26%, transparent));
   box-shadow:
     inset 0 0 0 1px var(--ds-primary-outline),

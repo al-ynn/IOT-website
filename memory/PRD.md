@@ -113,3 +113,13 @@ User asked: fix wrapping/margins/dead space, smallest widget size must stay read
 - globals.css: fixed a missing closing brace in .maplibregl-popup-content that had been silently swallowing every rule after it (stat-bar, glow-chip, dark map filter, iot-range); removed an orphaned duplicate block at EOF; added balance check (CSS BALANCED OK)
 - .theme-dark .maplibregl-canvas filter now applies (verified served CSS contains rule at top level)
 - Verified: lint 0, build OK
+
+## Eighth Pass — Reference-Row KPI Composition + Dense Widget Sizing (2026-02)
+User: make Device Count/Switch/Slider look like the markets reference (big colored icon + label + right value); fix smallest-size appropriateness of Metric By Devices + Device Connection Map.
+- device_count: right-aligned glowing KPI number, icon chip left, status pills center
+- switch: eyebrow "SWITCH" + big glowing ON/OFF text beside tactile yellow toggle (yellow gradient track when ON)
+- slider: eyebrow "LEVEL" + right-aligned glowing value+unit, gradient track below with min/read-only/max scale row
+- metric_by_devices: rows marked .dense-row + .row-sub; overflow hidden
+- connection map: .conn-grid + .dense-row chips
+- globals.css: @container widget (max-width:300px) → conn-grid collapses to 1 column, dense rows shrink padding, sub-labels hide; KPI chips hide under 170px
+- Verified: lint 0, tsc clean, build OK, dark screenshot confirms all compositions, map renders dark tiles

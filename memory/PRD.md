@@ -36,3 +36,14 @@ Preserve ALL functionality, APIs, DB, auth, routes, customization, widgets. Chan
 - P2: Notification center visual refresh
 - P2: Map widget frame/legend/toolbar polish
 - P2: Admin review/publication screens polish
+
+## Environment / Preview Fixes (2026-02, after pod extraction)
+- Frontend `package.json`: added `"start": "vite --host 0.0.0.0 --port 3000"` so the readonly supervisor config (`yarn start`) works with Vite
+- `vite.config.ts`: `server.allowedHosts: true` (preview domains) + proxy default target corrected to `http://127.0.0.1:8001` (Laravel) — was 8000
+- `frontend/.env` created: `VITE_API_URL=/api`, `VITE_API_PROXY_TARGET=http://127.0.0.1:8001`
+- Reinstalled node_modules on Linux (`yarn install --ignore-engines`; zip contained Windows native binaries that broke rolldown)
+- Installed PHP 8.4 (SURY repo) — vendor/composer requires >= 8.4.1; Laravel runs via `php8.4 artisan serve --host=0.0.0.0 --port=8001`
+- Bootstrap script for pod restarts: /app/scripts/start-stack.sh
+- Login verified end-to-end: admin@iot-platform.test / Admin123! → token → /app/dashboard renders with all widgets (switch, slider, label, device count, device table, geomap, image map, metrics charts) in BOTH dark + light themes
+- Bug fixed: `.app-backdrop > * { position: relative }` was overriding fixed sidebar positioning and pushing content below the fold — removed; desktop/mobile verified, zero horizontal overflow
+- Known platform-level (not app) note: the `*.cluster-7.preview.emergentcf.cloud` preview domain returns 403 from Google LB — the primary `*.preview.emergentagent.com` preview URL works correctly

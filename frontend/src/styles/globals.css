@@ -71,7 +71,6 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
   background-image:
     linear-gradient(var(--ds-grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--ds-grid-color) 1px, transparent 1px);
@@ -79,7 +78,6 @@ body {
   mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 75%);
 }
-.app-backdrop > * { position: relative; z-index: 1; }
 
 /* Utility surfaces */
 .surface-glass {

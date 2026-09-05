@@ -1,7 +1,7 @@
 /*
-  Gauge v2 — premium radial instrument (refs 5/6/8):
-  outer bezel ring, gradient arc with glow, tick marks, recessed dial,
-  gradient center value + percent readout.
+  Gauge v3 — neon radial instrument:
+  glowing bezel ring, luminous gradient arc with bloom, tick marks,
+  recessed dark dial, glowing center value.
 */
 export default function GaugeWidget({
   value,
@@ -23,66 +23,53 @@ export default function GaugeWidget({
         role="img"
         aria-label={`${value}${unit ?? ""}, ${Math.round(percent)} percent of range`}
         style={{
-          background: "var(--ds-card-alt)",
+          background: "var(--ds-bg)",
           boxShadow:
-            "inset 0 1px 2px var(--ds-inset-shadow), 0 1px 0 var(--ds-inset-highlight)",
+            "0 0 0 1px var(--ds-border-luminous), 0 0 26px -6px var(--ds-primary-glow), inset 0 2px 6px rgb(0 0 0 / .5)",
         }}
       >
-        {/* tick marks */}
         {ticks.map((deg, i) => (
           <span
             key={deg}
             aria-hidden
             className="absolute left-1/2 top-1/2 h-[3px] w-[1.5px] rounded-full"
             style={{
-              background:
-                i <= (percent / 100) * 24
-                  ? "var(--ds-primary-soft)"
-                  : "color-mix(in oklab, var(--ds-text-subtle) 40%, transparent)",
+              background: i <= (percent / 100) * 24 ? "var(--ds-primary-soft)" : "color-mix(in oklab, var(--ds-text-subtle) 35%, transparent)",
+              boxShadow: i <= (percent / 100) * 24 ? "0 0 4px var(--ds-primary-glow)" : "none",
               transform: `rotate(${deg}deg) translateY(-60px)`,
               opacity: i % 6 === 0 ? 1 : 0.5,
             }}
           />
         ))}
-        {/* gradient arc */}
         <div
           aria-hidden
           className="absolute inset-[7px] rounded-full"
           style={{
             background: `conic-gradient(from 180deg, var(--ds-primary-strong), var(--ds-primary) ${percent * 0.75}%, var(--ds-primary-soft) ${percent}%, transparent ${percent}%)`,
-            boxShadow: "0 0 18px -4px var(--ds-primary-glow)",
+            filter: "drop-shadow(0 0 6px var(--ds-primary-glow))",
             mask: "radial-gradient(farthest-side, transparent calc(100% - 8px), black calc(100% - 7px))",
             WebkitMask: "radial-gradient(farthest-side, transparent calc(100% - 8px), black calc(100% - 7px))",
           }}
         />
-        {/* recessed dial */}
         <div
           className="grid h-[92px] w-[92px] place-items-center rounded-full"
           style={{
-            background: "var(--ds-card)",
-            boxShadow:
-              "inset 0 2px 4px var(--ds-inset-shadow), inset 0 0 0 1px var(--ds-border-subtle)",
+            background: "radial-gradient(circle at 50% 35%, color-mix(in oklab, var(--ds-primary) 12%, var(--ds-card)), var(--ds-card))",
+            boxShadow: "inset 0 2px 6px rgb(0 0 0 / .45), inset 0 0 0 1px var(--ds-border-subtle)",
           }}
         >
           <span className="flex flex-col items-center gap-0.5 tabular-nums" data-numeric>
             <span
-              className="text-[22px] font-bold leading-none"
-              style={{
-                background: "linear-gradient(135deg, var(--ds-text), var(--ds-primary-soft))",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
+              className="text-[22px] font-bold leading-none text-[var(--ds-text)]"
+              style={{ textShadow: "0 0 14px var(--ds-primary-glow)" }}
             >
               {value}
               {unit && (
-                <span className="ml-0.5 text-[11px] font-medium" style={{ color: "var(--ds-text-muted)", WebkitBackgroundClip: "initial", background: "none" }}>
-                  {unit}
-                </span>
+                <span className="ml-0.5 text-[11px] font-semibold text-[var(--ds-primary-soft)]">{unit}</span>
               )}
             </span>
-            <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--ds-text-subtle)]">
-              {Math.round(percent)}% load
+            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--ds-primary-soft)]" style={{ textShadow: "0 0 8px var(--ds-primary-glow)" }}>
+              {Math.round(percent)}%
             </span>
           </span>
         </div>

@@ -3,10 +3,9 @@ import { AlertCircle, GripVertical, MessageSquare } from "lucide-react";
 import { LoadingState } from "../../ui";
 
 /*
-  Widget frame v2 — premium command-center tile (refs 8/9/10):
-  layered glass surface, luminous top edge, technical corner ticks,
-  compact header with glowing type dot, depth shadow.
-  Editable drag surface + comment action preserved.
+  Widget frame v3 — full neon command-center tile:
+  luminous border ring all around, outer glow bloom, inner ambient wash,
+  glowing header dot, hover intensifies the ring.
 */
 export default function DashboardWidget({
   title,
@@ -30,31 +29,50 @@ export default function DashboardWidget({
   return (
     <section
       aria-label={`${title} widget`}
-      className="group/widget tech-corners luminous-top relative flex h-full min-h-32 flex-col overflow-hidden rounded-[12px] border border-[var(--ds-border-subtle)] transition-[box-shadow,border-color] hover:border-[var(--ds-primary-outline)] hover:shadow-[var(--ds-glow-soft)]"
+      className="group/widget relative flex h-full min-h-32 flex-col overflow-hidden rounded-[14px] transition-[box-shadow,border-color] duration-200"
       style={{
         background:
-          "linear-gradient(180deg, color-mix(in oklab, var(--ds-card-alt) 55%, var(--ds-card)), var(--ds-card))",
-        boxShadow: "var(--ds-shadow-md)",
+          "linear-gradient(165deg, color-mix(in oklab, var(--ds-card-alt) 60%, var(--ds-card)), var(--ds-card) 55%)",
+        border: "1px solid var(--ds-border-luminous)",
+        boxShadow:
+          "0 0 0 1px color-mix(in oklab, var(--ds-primary) 12%, transparent), " +
+          "0 0 22px -6px var(--ds-primary-glow), " +
+          "inset 0 0 32px -18px var(--ds-primary-glow), " +
+          "var(--ds-shadow-md)",
       }}
     >
+      {/* luminous top beam */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-6 top-0 h-[2px] rounded-full"
+        style={{
+          background: "linear-gradient(90deg, transparent, var(--ds-primary), transparent)",
+          boxShadow: "0 0 10px 1px var(--ds-primary-glow)",
+        }}
+      />
+      {/* corner ticks */}
+      <span aria-hidden className="pointer-events-none absolute left-1.5 top-1.5 h-2.5 w-2.5 border-l border-t border-[var(--ds-primary)] opacity-70" />
+      <span aria-hidden className="pointer-events-none absolute bottom-1.5 right-1.5 h-2.5 w-2.5 border-b border-r border-[var(--ds-primary)] opacity-70" />
+
       <div
         className={`relative flex h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--ds-border-subtle)] px-3 ${
           editable ? "dashboard-widget-drag-surface" : ""
         }`}
         style={{
           background:
-            "linear-gradient(180deg, color-mix(in oklab, var(--ds-surface-elevated) 60%, transparent), transparent)",
+            "linear-gradient(180deg, color-mix(in oklab, var(--ds-primary) 10%, transparent), transparent)",
         }}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <span
             aria-hidden
             className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--ds-primary)]"
-            style={{ boxShadow: "0 0 6px 1px var(--ds-primary-glow)" }}
+            style={{ boxShadow: "0 0 8px 2px var(--ds-primary-glow)" }}
           />
           <h3
-            className="truncate text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--ds-text-muted)]"
+            className="truncate text-[10.5px] font-bold uppercase tracking-[0.18em] text-[var(--ds-primary-soft)]"
             title={title}
+            style={{ textShadow: "0 0 12px var(--ds-primary-glow)" }}
           >
             {title}
           </h3>

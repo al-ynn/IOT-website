@@ -1,0 +1,8 @@
+{
+  "name": "iot-platform",
+  "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:frontend": "yarn --cwd frontend lint"
+  }
+}

@@ -74,3 +74,12 @@ User rejected pass 1 as "token swap / too close to original". Reference zips re-
 - tsc: only 3 pre-existing errors in admin pages (untouched)
 - yarn build: succeeds (15s, rolldown)
 - Screenshots: login (dark, glass+grid), dashboard dark (luminous widgets), devices light (blue-tinted light theme), mobile 390px zero overflow
+
+## Fourth Pass — Neon Command-Center Widgets (2026-02)
+User demanded reference-level drama: full luminous borders, glowing icon chips, huge glowing numbers.
+- DashboardWidget v3: full luminous border ring + outer glow bloom + inner ambient wash + top light beam + corner ticks; glowing uppercase header dot
+- MetricWidget v3: glowing icon chip → eyebrow → 32px number with text-shadow bloom → glowing trend chip
+- GaugeWidget v3: neon bezel ring, drop-shadow arc, recessed dial, glowing center value
+- StatusWidget v3: glowing beacon orb in luminous ring + glowing uppercase state label
+- WidgetRenderer: device_count + event_count_tile now glowing icon-chip stat blocks (inline SVG chips, no new deps); global summary tiles get glowing numbers
+- Verified: lint clean, tsc clean (except 3 pre-existing admin files), build passes, dark/light/mobile screenshots confirmed, zero overflow

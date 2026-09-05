@@ -29,13 +29,18 @@ export default function MetricWidget({
     <div className="kpi-row">
       <span
         aria-hidden
-        className="kpi-icon text-[var(--ds-primary-soft)]"
+        className="big-ring relative grid shrink-0 place-items-center rounded-full"
         style={{
-          background: "linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 32%, transparent))",
-          boxShadow: "inset 0 0 0 1px var(--ds-primary-outline), 0 0 22px -4px var(--ds-primary-glow)",
+          background: "conic-gradient(var(--ds-chart-1) 0 68%, var(--ds-card-alt) 68% 100%)",
+          boxShadow: "0 0 26px -6px var(--ds-primary-glow), inset 0 1px 2px var(--ds-inset-shadow)",
         }}
       >
-        <Activity size={20} />
+        <span
+          className="big-ring-core grid place-items-center rounded-full text-[var(--ds-primary-soft)]"
+          style={{ background: "var(--ds-card)", boxShadow: "inset 0 0 0 1px var(--ds-primary-outline), inset 0 1px 0 rgb(255 255 255 / .08)" }}
+        >
+          <Activity />
+        </span>
       </span>
       <div className="flex min-w-0 flex-col gap-1">
         {label && (

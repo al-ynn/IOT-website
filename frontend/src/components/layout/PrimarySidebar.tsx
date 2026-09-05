@@ -52,7 +52,7 @@ export default function PrimarySidebar({
             className={`${collapsed ? "h-7 w-7 text-[11px]" : "h-8 w-8 text-xs"} grid shrink-0 place-items-center rounded-[9px] font-bold text-white`}
             style={{
               background: "linear-gradient(135deg, var(--ds-primary), var(--ds-primary-strong))",
-              boxShadow: "0 0 0 1px rgb(255 255 255 / .12) inset, 0 4px 14px -4px var(--ds-primary-glow)",
+              boxShadow: "0 0 0 1px rgb(255 255 255 / .12) inset, 0 4px 14px -4px var(--ds-primary-glow), 0 0 18px -6px var(--ds-chart-3)",
             }}
           >
             I
@@ -88,7 +88,7 @@ export default function PrimarySidebar({
                 className="mb-1.5 flex items-center gap-2 px-2 text-[9.5px] font-semibold uppercase tracking-[0.18em] text-[var(--ds-text-subtle)]"
               >
                 {primaryNavigationSectionLabels[section]}
-                <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-[var(--ds-border)] to-transparent" />
+                <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-[color-mix(in_oklab,var(--ds-chart-3)_55%,transparent)] to-transparent" />
               </h2>
             )}
             <div className="space-y-0.5">
@@ -107,16 +107,16 @@ export default function PrimarySidebar({
                       title={collapsed ? entry.label : undefined}
                       className={`group relative flex min-h-9 items-center gap-2.5 rounded-[9px] px-2.5 text-xs font-medium transition focus-visible:ring-2 focus-visible:ring-[var(--ds-focus)] ${
                         active
-                          ? "text-[var(--ds-primary-soft)]"
+                          ? "text-[var(--ds-chart-3)]"
                           : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text)]"
                       }`}
                       style={
                         active
                           ? {
                               background:
-                                "linear-gradient(90deg, color-mix(in oklab, var(--ds-primary) 22%, transparent), color-mix(in oklab, var(--ds-primary) 6%, transparent))",
+                                "linear-gradient(90deg, color-mix(in oklab, var(--ds-chart-3) 22%, transparent), color-mix(in oklab, var(--ds-chart-3) 5%, transparent))",
                               boxShadow:
-                                "inset 0 0 0 1px var(--ds-primary-outline), 0 0 18px -6px var(--ds-primary-glow)",
+                                "inset 0 0 0 1px color-mix(in oklab, var(--ds-chart-3) 45%, transparent), 0 0 20px -6px var(--ds-chart-3)",
                             }
                           : undefined
                       }
@@ -127,8 +127,8 @@ export default function PrimarySidebar({
                           aria-hidden
                           className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"
                           style={{
-                            background: "linear-gradient(180deg, var(--ds-primary-soft), var(--ds-primary))",
-                            boxShadow: "0 0 10px 1px var(--ds-primary-glow)",
+                            background: "linear-gradient(180deg, var(--ds-chart-3), var(--ds-chart-4))",
+                            boxShadow: "0 0 12px 2px var(--ds-chart-3)",
                           }}
                         />
                       )}
@@ -143,7 +143,7 @@ export default function PrimarySidebar({
                       </span>
                       {!collapsed && <span className="truncate">{entry.label}</span>}
                       {!collapsed && active && (
-                        <span aria-hidden className="ml-auto h-1.5 w-1.5 rounded-full bg-[var(--ds-primary)] shadow-[0_0_8px_2px_var(--ds-primary-glow)]" />
+                        <span aria-hidden className="ml-auto h-1.5 w-1.5 rounded-full bg-[var(--ds-chart-3)] shadow-[0_0_10px_2px_var(--ds-chart-3)]" />
                       )}
                     </Link>
                   );
@@ -156,9 +156,9 @@ export default function PrimarySidebar({
       {/* bottom status chip */}
       {!collapsed && (
         <div className="relative border-t border-[var(--ds-border-subtle)] p-3">
-          <div className="flex items-center gap-2 rounded-[9px] border border-[var(--ds-border-subtle)] bg-[var(--ds-card-alt)] px-2.5 py-2">
-            <span aria-hidden className="pulse-dot h-2 w-2 rounded-full bg-[var(--ds-success)]" />
-            <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--ds-text-muted)]">Systems nominal</span>
+          <div className="flex items-center gap-2 rounded-[9px] border border-[color-mix(in_oklab,var(--ds-chart-3)_35%,transparent)] bg-[var(--ds-card-alt)] px-2.5 py-2" style={{boxShadow:"0 0 14px -6px var(--ds-chart-3)"}}>
+            <span aria-hidden className="pulse-dot h-2 w-2 rounded-full bg-[var(--ds-chart-2)]" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ds-chart-3)]">Systems nominal</span>
           </div>
         </div>
       )}

@@ -73,7 +73,7 @@ export default function GaugeWidget({
                 <span className="ml-0.5 text-[11px] font-semibold text-[var(--ds-primary-soft)]">{unit}</span>
               )}
             </span>
-            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--ds-primary-soft)]" style={{ textShadow: "0 0 8px var(--ds-primary-glow)" }}>
+            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--ds-chart-3)]" style={{ textShadow: "0 0 10px var(--ds-chart-3)" }}>
               {Math.round(percent)}%
             </span>
           </span>

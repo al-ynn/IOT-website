@@ -123,3 +123,15 @@ User: make Device Count/Switch/Slider look like the markets reference (big color
 - connection map: .conn-grid + .dense-row chips
 - globals.css: @container widget (max-width:300px) → conn-grid collapses to 1 column, dense rows shrink padding, sub-labels hide; KPI chips hide under 170px
 - Verified: lint 0, tsc clean, build OK, dark screenshot confirms all compositions, map renders dark tiles
+
+## Ninth Pass — Device Count Rebuild (2026-02)
+User: device count still not redesigned. Rebuilt as reference-row composition: big blue gradient CPU chip → "DEVICES" eyebrow + "N online · M offline" colored subline → huge glowing number right-aligned → proportional online(green)/offline(red) glowing stat-bar at bottom. tsc clean.
+
+## Tenth Pass — Big-Icon KPIs (2026-02)
+User: Event Count / Latest Value / Device Count must have BIG content-appropriate icons like Device Status. Enlarged .kpi-icon to 4rem/64px (26px svg) with stronger glow; container queries scale to 3rem @320px, 2.5rem @260px, hidden @170px. Event count lightning icon + glow boosted; device count chip icon boosted; metric activity icon boosted. kpi-value 32px.
+
+## Eleventh Pass — Ring-Icon KPIs + Yellow Energy (2026-02)
+- Fixed critical CSS bug: .glow-chip rule was missing its closing brace AND its body declarations — everything after it (widget-body, kpi-row, kpi-icon, kpi-value, big-ring, all @container queries) was nested inside it and silently dropped. This is why big-ring rendered as a 210px-wide oval. Restored full rule + removed orphaned duplicate. Verified: rings now 44-56px circles, kpi-row display:flex confirmed in-browser.
+- big-ring system: conic-gradient ring (doubles as live gauge — device count ring shows online %, event count 82% arc, switch full-yellow when ON) + inset core with icon; container-query scaling 72→56→44px→hidden
+- Yellow energy pass: sidebar active items now yellow gradient + yellow beam + yellow dot; secondary sidebar yellow beam/eyebrow; section hairlines yellow-gradient; "Systems nominal" chip yellow; notification badge yellow gradient with pulse-yellow; theme toggle hovers yellow; widget top beams animated blue-yellow beam-flow; corner ticks shift yellow on widget hover; gauge % label yellow; primary button hover adds yellow glow; dense-row hover = yellow glow + translateX; widget fade-in animation
+- Verified: lint 0, build OK, CSS BALANCED OK, in-browser geometry checks pass

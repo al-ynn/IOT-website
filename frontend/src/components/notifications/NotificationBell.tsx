@@ -26,7 +26,7 @@ export default function NotificationBell(){
   return <>
     <button ref={button} type="button" aria-label={`Notifications${count?`, ${count} unread`:""}`} onClick={show} className="relative grid h-9 w-9 place-items-center rounded-[9px] border border-[var(--ds-border-subtle)] text-[var(--ds-text-muted)] hover:border-[var(--ds-primary-outline)] hover:bg-[var(--ds-primary-surface)] hover:text-[var(--ds-primary)]">
       <Bell size={16}/>
-      {count>0&&<span className="absolute -right-1 -top-1 grid min-w-[18px] place-items-center rounded-full border-2 border-[var(--ds-bg)] px-1 text-center text-[9px] font-bold text-white" style={{background:"linear-gradient(135deg, var(--ds-primary), var(--ds-primary-strong))",boxShadow:"0 0 10px -1px var(--ds-primary-glow)"}} aria-hidden="true">{count>99?"99+":count}</span>}
+      {count>0&&<span className="pulse-yellow absolute -right-1 -top-1 grid min-w-[18px] place-items-center rounded-full border-2 border-[var(--ds-bg)] px-1 text-center text-[9px] font-bold text-[#1F2937]" style={{background:"linear-gradient(135deg, var(--ds-chart-3), var(--ds-chart-4))",boxShadow:"0 0 12px -1px var(--ds-chart-3)"}} aria-hidden="true">{count>99?"99+":count}</span>}
     </button>
     <Drawer open={open} onClose={close} title="Notifications" description={`${count} unread`} footer={<Link to="/app/notifications" onClick={close} className="text-xs font-medium text-[var(--ds-primary)] hover:text-[var(--ds-primary-hover)]">View all notifications</Link>}>
       {loading?<Skeleton className="h-48"/>:error?<ErrorState description={error} retry={()=>void refresh(true)}/>:items.length===0?<EmptyState title="No notifications"/>:(

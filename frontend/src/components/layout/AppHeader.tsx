@@ -23,7 +23,7 @@ export default function AppHeader({onOpenNavigation,onOpenContextNavigation,hasC
     <div className="flex items-center gap-1.5">
       <SearchCommand/>
       <NotificationBell/>
-      <button type="button" aria-label={`Switch to ${theme==="dark"?"light":"dark"} theme`} onClick={toggleTheme} className="grid h-9 w-9 place-items-center rounded-[9px] border border-[var(--ds-border-subtle)] text-[var(--ds-text-muted)] hover:border-[var(--ds-primary-outline)] hover:bg-[var(--ds-primary-surface)] hover:text-[var(--ds-primary)]">{theme==="dark"?<Sun size={16}/>:<Moon size={16}/>}</button>
+      <button type="button" aria-label={`Switch to ${theme==="dark"?"light":"dark"} theme`} onClick={toggleTheme} className="grid h-9 w-9 place-items-center rounded-[9px] border border-[var(--ds-border-subtle)] text-[var(--ds-text-muted)] hover:border-[color-mix(in_oklab,var(--ds-chart-3)_50%,transparent)] hover:bg-[var(--ds-accent-surface)] hover:text-[var(--ds-chart-3)]">{theme==="dark"?<Sun size={16}/>:<Moon size={16}/>}</button>
       <UserMenu/>
     </div>
   </header>;

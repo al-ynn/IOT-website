@@ -1,4 +1,4 @@
-import {expect,test} from "@playwright/test";
+import {expect,test} from "./fixtures/test";
 
 test("single sample system loads its complete backend-backed Dashboard",async({page})=>{
  test.setTimeout(90_000);

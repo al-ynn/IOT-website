@@ -1,4 +1,4 @@
-import {expect,test,type Page} from "@playwright/test";
+import {expect,test,type Page} from "./fixtures/test";
 
 const token="10303|phase103-admin1-token";
 async function authenticate(page:Page){await page.addInitScript(value=>localStorage.setItem("iot_token",value),token)}

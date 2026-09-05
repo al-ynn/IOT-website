@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const directory = path.dirname(fileURLToPath(import.meta.url));
 export const backendDirectory = path.resolve(directory, "../../backend");
 export const browserDatabase = path.join(backendDirectory, "storage", "phase103-browser.sqlite");
+export const browserBaseline = path.join(backendDirectory, "storage", "phase103-browser-baseline.sqlite");
 
 export function browserBackendEnv(extra = {}) {
   return {
@@ -32,4 +33,5 @@ export function prepareBrowserTestDatabase() {
     const result = spawnSync("php", args, { cwd: backendDirectory, env: browserBackendEnv(), encoding: "utf8" });
     if (result.status !== 0) throw new Error(`${result.stdout ?? ""}\n${result.stderr ?? ""}`);
   }
+  fs.copyFileSync(browserDatabase, browserBaseline);
 }

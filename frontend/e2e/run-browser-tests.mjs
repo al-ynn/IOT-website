@@ -34,13 +34,11 @@ function stop(child, label) {
   return new Promise((resolve) => child.once("close", (code, signal) => { console.log(`[harness] ${label} stopped code=${code} signal=${signal ?? "none"}`); resolve({ code, signal }); }));
 }
 async function main() {
-  let backend; let frontend; let playwright; let resultCode = 1;
+  let frontend; let playwright; let resultCode = 1;
   try {
     for (const [port, label] of [[backendPort, "backend"], [frontendPort, "frontend"]]) if (!(await isPortFree(port))) throw new Error(`${label} port ${port} is already in use; refusing stale-server reuse`);
     console.log("[harness] preparing browser database");
     prepareBrowserTestDatabase();
-    backend = start("php", ["-S", `127.0.0.1:${backendPort}`, "-t", "public", "public/index.php"], { cwd: backendDirectory, env: browserBackendEnv() });
-    await waitFor(`http://127.0.0.1:${backendPort}/up`, backend);
     frontend = start(process.execPath, [path.join(frontendDirectory, "node_modules", "vite", "bin", "vite.js"), "--host", "127.0.0.1", "--port", String(frontendPort)], { cwd: frontendDirectory, env: { ...process.env, VITE_API_URL: "/api", VITE_API_PROXY_TARGET: `http://127.0.0.1:${backendPort}` } });
     await waitFor(`http://127.0.0.1:${frontendPort}/login`, frontend);
     playwright = start(process.execPath, [path.join(frontendDirectory, "node_modules", "@playwright", "test", "cli.js"), "test", "--config=playwright.external.config.ts", ...process.argv.slice(2)], { cwd: frontendDirectory, env: { ...process.env, PLAYWRIGHT_EXTERNAL_SERVERS: "1" } });
@@ -48,7 +46,7 @@ async function main() {
   } catch (error) { console.error(`[harness] ${error instanceof Error ? error.message : String(error)}`); resultCode = 1; }
   finally {
     await stop(frontend, "frontend");
-    await stop(backend, "backend");
+    // PHP is owned and stopped by the test-scoped Playwright fixture.
     for (const [port, label] of [[backendPort, "backend"], [frontendPort, "frontend"]]) if (!(await isPortFree(port))) { console.error(`[harness] ${label} port ${port} remained in use`); resultCode = 1; }
   }
   process.exitCode = resultCode;

@@ -1,10 +1,9 @@
-import {expect,test} from "@playwright/test";
+import {expect,test} from "./fixtures/test";
 
 let token:string;
 
 test.describe("P1-3 fleet dashboard",()=>{
- test.beforeAll(async({request})=>{const response=await request.post("http://127.0.0.1:18000/api/auth/login",{data:{email:"admin@iot-platform.test",password:"Admin123!"}});expect(response.ok()).toBeTruthy();token=(await response.json() as {token:string}).token;});
- test.beforeEach(async({page})=>{await page.addInitScript(value=>localStorage.setItem("iot_token",value),token);await page.goto("/app/dashboard");await expect(page.getByText("Sample Device Dashboard",{exact:true})).toBeVisible({timeout:30_000});});
+ test.beforeEach(async({page})=>{const response=await page.request.post("http://127.0.0.1:18000/api/auth/login",{data:{email:"admin@iot-platform.test",password:"Admin123!"}});expect(response.ok()).toBeTruthy();token=(await response.json() as {token:string}).token;await page.addInitScript(value=>localStorage.setItem("iot_token",value),token);await page.goto("/app/dashboard");await expect(page.getByText("Sample Device Dashboard",{exact:true})).toBeVisible({timeout:30_000});});
  test("Device Count renders authorized data",async({page})=>{await expect(page.getByText("Device count",{exact:true}).first()).toBeVisible();});
  test("Device Table renders authorized rows",async({page})=>{await expect(page.getByText("Device table",{exact:true}).first()).toBeVisible();await expect(page.getByText("Sample Device").first()).toBeVisible();});
  test("Metric by Devices renders without unauthorized leakage",async({page})=>{await expect(page.getByText("Metric by devices",{exact:true}).first()).toBeVisible({timeout:30_000});});

@@ -28,7 +28,7 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "border-transparent bg-[var(--ds-primary)] text-white " +
+    "btn-sheen border-transparent bg-[var(--ds-primary)] text-white " +
     "shadow-[0_1px_0_rgb(255_255_255/.18)_inset,0_1px_2px_rgb(0_0_0/.22),0_6px_16px_-8px_rgb(59_130_246/.55)] " +
     "hover:bg-[var(--ds-primary-hover)] hover:shadow-[0_1px_0_rgb(255_255_255/.22)_inset,0_2px_4px_rgb(0_0_0/.24),0_10px_22px_-8px_rgb(59_130_246/.65),0_0_18px_-6px_var(--ds-chart-3)]",
   secondary:

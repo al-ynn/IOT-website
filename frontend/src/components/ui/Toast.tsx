@@ -35,7 +35,7 @@ export function Toast({
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className="pointer-events-auto flex w-full max-w-sm gap-3 rounded-[10px] border border-[var(--ds-border-subtle)] bg-[var(--ds-surface-elevated)] p-3 shadow-[var(--ds-shadow-lg)]"
+      className="toast-in pointer-events-auto flex w-full max-w-sm gap-3 rounded-[10px] border border-[var(--ds-border-subtle)] bg-[var(--ds-surface-elevated)] p-3 shadow-[var(--ds-shadow-lg)]"
     >
       <span
         className={cn(

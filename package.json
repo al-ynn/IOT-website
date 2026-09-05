@@ -4,5 +4,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:frontend": "yarn --cwd frontend lint"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5"
   }
 }

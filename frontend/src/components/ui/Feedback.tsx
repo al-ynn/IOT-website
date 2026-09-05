@@ -1,5 +1,5 @@
 import type { ReactNode, HTMLAttributes } from "react";
-import { AlertTriangle, Inbox, LoaderCircle, RefreshCw } from "lucide-react";
+import { AlertTriangle, Inbox, RefreshCw } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "./Button";
 
@@ -19,7 +19,7 @@ export function LoadingState({
         className,
       )}
     >
-      <LoaderCircle aria-hidden className="animate-spin text-[var(--ds-primary)]" size={17} />
+      <span aria-hidden className="loader-ring" />
       <span>{label}</span>
     </div>
   );
@@ -63,7 +63,7 @@ export function EmptyState({
         className,
       )}
     >
-      <span className="grid h-11 w-11 place-items-center rounded-[10px] border border-[var(--ds-border-subtle)] bg-[var(--ds-primary-surface)] text-[var(--ds-primary)] shadow-[var(--ds-shadow-sm)]">
+      <span className="empty-float grid h-11 w-11 place-items-center rounded-[10px] border border-[var(--ds-primary-outline)] bg-[var(--ds-primary-surface)] text-[var(--ds-primary)]" style={{ boxShadow: "0 0 20px -4px var(--ds-primary-glow)" }}>
         {icon ?? <Inbox size={18} />}
       </span>
       <Heading className="mt-3 text-sm font-semibold text-[var(--ds-text)]">{title}</Heading>

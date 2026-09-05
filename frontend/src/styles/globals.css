@@ -407,3 +407,123 @@ aside.pointer-events-auto.absolute.right-0 { position: sticky; }
   background: #fff;
   box-shadow: 0 2px 6px rgb(0 0 0 / .4);
 }
+
+/* ================= AUTH SCENE — IoT command-center entrance ================= */
+.auth-radar { position: absolute; left: 50%; top: 50%; width: 880px; height: 880px; transform: translate(-50%, -50%); pointer-events: none; }
+.auth-radar::before, .auth-radar::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid var(--ds-primary-outline);
+  animation: radar-ping 4.5s cubic-bezier(0, 0, .2, 1) infinite;
+}
+.auth-radar::after { animation-delay: 2.25s; border-color: color-mix(in oklab, var(--ds-chart-3) 40%, transparent); }
+@keyframes radar-ping {
+  0% { transform: scale(.18); opacity: .9; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.auth-scan {
+  position: absolute; inset: 0 0 auto 0; height: 120px; pointer-events: none;
+  background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--ds-primary) 8%, transparent), transparent);
+  animation: scan-sweep 7s ease-in-out infinite;
+}
+@keyframes scan-sweep {
+  0%, 100% { transform: translateY(-20vh); opacity: 0; }
+  15% { opacity: 1; }
+  50% { transform: translateY(60vh); opacity: 1; }
+  65% { opacity: 0; }
+}
+.auth-chip {
+  position: absolute; display: none; align-items: center; gap: 6px;
+  border: 1px solid var(--ds-border-subtle); border-radius: 999px;
+  background: color-mix(in oklab, var(--ds-surface-elevated) 78%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  box-shadow: var(--ds-shadow-sm);
+  animation: float-y 5s ease-in-out infinite;
+}
+@media (min-width: 900px) { .auth-chip { display: inline-flex; } }
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+.circuit-path { stroke-dasharray: 5 9; animation: circuit-flow 9s linear infinite; }
+@keyframes circuit-flow { to { stroke-dashoffset: -280; } }
+.eq-bar { transform-origin: bottom; animation: eq 1.3s ease-in-out infinite; }
+.eq-bar:nth-child(2) { animation-delay: .18s; }
+.eq-bar:nth-child(3) { animation-delay: .36s; }
+.eq-bar:nth-child(4) { animation-delay: .54s; }
+@keyframes eq { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+.auth-ticker {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+}
+.auth-ticker-inner { display: flex; gap: 2rem; width: max-content; animation: ticker 26s linear infinite; }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+/* ================= PAGE LIFE — global motion & interaction ================= */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+#main-content > div { animation: page-enter .35s cubic-bezier(.2, 0, 0, 1) backwards; }
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+[role="dialog"] { animation: dialog-in .25s cubic-bezier(.2, 0, 0, 1) backwards; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: none; }
+}
+.toast-in { animation: toast-in .28s cubic-bezier(.2, 0, 0, 1) backwards; }
+
+/* Yellow beam on table row hover */
+table tbody tr { transition: background-color .15s ease; }
+table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--ds-chart-3); }
+
+/* Card shine sweep (interactive variant) */
+.card-shine::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgb(255 255 255 / .07) 50%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform .65s ease;
+}
+.card-shine:hover::after { transform: translateX(130%); }
+
+/* Button sheen sweep */
+.btn-sheen { overflow: hidden; }
+.btn-sheen::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / .28), transparent);
+  transform: skewX(-20deg); transition: left .5s ease; pointer-events: none;
+}
+.btn-sheen:hover::before { left: 125%; }
+
+/* Loading dual ring */
+.loader-ring {
+  height: 18px; width: 18px; border-radius: 50%;
+  border: 2px solid var(--ds-primary-outline);
+  border-top-color: var(--ds-primary);
+  animation: spin .7s linear infinite;
+  box-shadow: 0 0 12px -2px var(--ds-primary-glow);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty-state floating icon */
+.empty-float { animation: float-y 4s ease-in-out infinite; }
+
+/* Page title underline beam + gradient pan */
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.title-beam { position: relative; }
+.title-beam::after {
+  content: ""; position: absolute; left: 0; bottom: -7px; height: 2px; width: 56px; border-radius: 999px;
+  background: linear-gradient(90deg, var(--ds-primary), var(--ds-chart-3));
+  box-shadow: 0 0 10px -1px var(--ds-primary-glow);
+}

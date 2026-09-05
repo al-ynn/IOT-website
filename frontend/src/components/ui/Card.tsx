@@ -14,7 +14,7 @@ const variants: Record<CardVariant, string> = {
     "border border-[var(--ds-border-subtle)] bg-[var(--ds-card)] " +
     "shadow-[var(--ds-shadow-md)]",
   interactive:
-    "border border-[var(--ds-border-subtle)] bg-[var(--ds-card)] " +
+    "card-shine border border-[var(--ds-border-subtle)] bg-[var(--ds-card)] " +
     "transition hover:-translate-y-0.5 hover:border-[var(--ds-primary-outline)] " +
     "hover:shadow-[var(--ds-glow-soft),var(--ds-shadow-md)]",
   glass:

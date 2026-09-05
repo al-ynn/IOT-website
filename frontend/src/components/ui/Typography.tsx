@@ -10,11 +10,13 @@ export function PageTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEle
   return (
     <h1
       className={cn(
-        "w-fit text-[20px] font-bold tracking-tight text-[var(--ds-text)] sm:text-[22px]",
+        "title-beam w-fit text-[20px] font-bold tracking-tight text-[var(--ds-text)] sm:text-[22px]",
         className,
       )}
       style={{
-        background: "linear-gradient(120deg, var(--ds-text) 55%, var(--ds-primary-soft))",
+        background: "linear-gradient(120deg, var(--ds-text) 30%, var(--ds-primary-soft) 50%, var(--ds-text) 70%)",
+        backgroundSize: "220% 100%",
+        animation: "gradient-pan 7s ease infinite",
         WebkitBackgroundClip: "text",
         backgroundClip: "text",
         color: "transparent",

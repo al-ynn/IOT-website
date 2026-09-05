@@ -135,3 +135,20 @@ User: Event Count / Latest Value / Device Count must have BIG content-appropriat
 - big-ring system: conic-gradient ring (doubles as live gauge — device count ring shows online %, event count 82% arc, switch full-yellow when ON) + inset core with icon; container-query scaling 72→56→44px→hidden
 - Yellow energy pass: sidebar active items now yellow gradient + yellow beam + yellow dot; secondary sidebar yellow beam/eyebrow; section hairlines yellow-gradient; "Systems nominal" chip yellow; notification badge yellow gradient with pulse-yellow; theme toggle hovers yellow; widget top beams animated blue-yellow beam-flow; corner ticks shift yellow on widget hover; gauge % label yellow; primary button hover adds yellow glow; dense-row hover = yellow glow + translateX; widget fade-in animation
 - Verified: lint 0, build OK, CSS BALANCED OK, in-browser geometry checks pass
+
+## Twelfth Pass — Cinematic Login + Global Page Life (2026-02)
+User: pages besides dashboard felt dead; login needs IoT drama; act as senior UI/UX.
+- AuthLayout v3: radar pulse rings, sweeping scan line, animated circuit traces (dash-flow), 4 floating live-telemetry chips (temp/signal/uptime/nodes with per-color glow), brand mark with pulsing online dot + animated equalizer bars, scrolling ops ticker (MQTT/TLS/latency/firmware…), glass panel preserved
+- globals.css: page-enter for all pages, dialog-in for all modals/drawers, toast-in, table row yellow beam on hover, card shine sweep, button sheen sweep, loader-ring glow spinner, empty-state float, title-beam underline + gradient-pan animation
+- Primitives: PageTitle animated panning gradient + underline beam; Card interactive gets shine; primary Button gets sheen; LoadingState dual-ring glow; EmptyState floating glowing icon; Toast slide-in
+- Fixed unused LoaderCircle import (lint+build were red)
+- Verified: lint 0, tsc clean, build OK, login scene (radar/scan/4 chips/ticker/3 circuits all present), Devices page renders new system
+
+## Validation & E2E Closure (2026-06)
+- Platform lint gate fix: added legacy `/app/.eslintrc.json` (root, ignorePatterns **/*) + `/app/.eslintignore` so ESLint 8/eslintrc-mode gates find a config; flat-config mode (system v9.39.5, frontend v10.10.0) unaffected — both modes exit 0
+- E2E harness fix: `playwright.external.config.ts` had a hardcoded Windows Chrome path (`C:\Program Files\...\chrome.exe`) that failed all 56 tests in Linux; now `process.env.PLAYWRIGHT_CHROME_PATH || "/usr/bin/google-chrome"`
+- Accessibility fixes (axe color-contrast, WCAG 2 AA 4.5:1):
+  - theme.css dark `--ds-text-subtle`: #6B7280 → #93A0B1 (was 3.67:1 on card surfaces; now ~5.8:1) — fixed 48 violations across 10 axe audits
+  - Notifications.tsx "Unread" label: `--ds-primary` → `--ds-primary-soft` (4.48:1 → ~8:1 on unread row bg)
+- FINAL RESULTS: full E2E suite `yarn test:e2e` = **56/56 passed** (6.8m, incl. 10 axe audits + keyboard/reflow tests); `tsc -b` clean; `eslint .` clean (root + frontend)
+- Live stack verified: frontend :3000 → 200, backend :8001 login returns token (admin@iot-platform.test / Admin123!)

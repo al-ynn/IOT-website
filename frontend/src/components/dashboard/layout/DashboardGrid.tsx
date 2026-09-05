@@ -53,7 +53,7 @@ export default function DashboardGrid({ widgets, definitions = [], editable = fa
     for (const item of items) persist(item);
   };
 
-  return <Grid className="dashboard-grid" layouts={{ lg: removeOverlaps(layout,12), md: fitLayout(8), sm: fitLayout(4), xs: mobileLayout }} breakpoints={{ lg: 1200, md: 900, sm: 600, xs: 0 }} cols={{ lg: 12, md: 8, sm: 4, xs: 1 }} rowHeight={48} compactType="vertical" allowOverlap={false} preventCollision={false} isBounded isDraggable={editable} isResizable={editable} draggableCancel="button,input,select,textarea,a,[role='button'],.react-resizable-handle" resizeHandles={["se"]} onDragStop={(next) => persistLayout(next)} onResizeStop={(next) => persistLayout(next)}>
+  return <Grid className="dashboard-grid" layouts={{ lg: removeOverlaps(layout,12), md: fitLayout(8), sm: fitLayout(4), xs: mobileLayout }} breakpoints={{ lg: 1200, md: 900, sm: 600, xs: 0 }} cols={{ lg: 12, md: 8, sm: 4, xs: 1 }} rowHeight={48} margin={[12,12]} containerPadding={[2,2]} compactType="vertical" allowOverlap={false} preventCollision={false} isBounded isDraggable={editable} isResizable={editable} draggableCancel="button,input,select,textarea,a,[role='button'],.react-resizable-handle" resizeHandles={["se"]} onDragStop={(next) => persistLayout(next)} onResizeStop={(next) => persistLayout(next)}>
     {widgets.map((widget) => <div key={widget.id} onClick={() => onSelect?.(widget.id)} className="min-w-0"><WidgetErrorBoundary><WidgetRenderer widget={widget} editable={editable} onComment={onComment ? () => onComment(widget.id) : undefined} timeRange={timeRange} /></WidgetErrorBoundary></div>)}
   </Grid>;
 }

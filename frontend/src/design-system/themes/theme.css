@@ -71,11 +71,13 @@
   --ds-ambient-2: rgb(59 130 246 / .07);
   --ds-ambient-3: rgb(250 204 21 / .04);
 
-  /* Chart series (tonal variants of approved family) */
+  /* Chart series (vibrant tonal set) */
   --ds-chart-1: #3B82F6;
-  --ds-chart-2: #93C5FD;
+  --ds-chart-2: #34D399;
   --ds-chart-3: #FACC15;
-  --ds-chart-4: #6B7280;
+  --ds-chart-4: #FB923C;
+  --ds-chart-5: #F87171;
+  --ds-chart-6: #A78BFA;
   --ds-chart-grid: rgb(147 197 253 / .08);
 }
 
@@ -140,9 +142,11 @@
   --ds-ambient-3: rgb(250 204 21 / .06);
 
   --ds-chart-1: #3B82F6;
-  --ds-chart-2: #93C5FD;
+  --ds-chart-2: #34D399;
   --ds-chart-3: #EAB308;
-  --ds-chart-4: #6B7280;
+  --ds-chart-4: #FB923C;
+  --ds-chart-5: #EF4444;
+  --ds-chart-6: #8B5CF6;
   --ds-chart-grid: rgb(31 41 55 / .07);
 }
 

@@ -248,6 +248,12 @@ aside.pointer-events-auto.absolute.right-0 { position: sticky; }
   border-radius: 999px;
   background: linear-gradient(90deg, var(--ds-primary-strong), var(--ds-primary), var(--ds-primary-soft));
   box-shadow: 0 0 8px -1px var(--ds-primary-glow);
+/* Dark-mode map tiles — invert+hue-rotate keeps raster tiles readable
+   in dark theme without touching MapLibre configuration. */
+.theme-dark .maplibregl-canvas {
+  filter: invert(0.9) hue-rotate(190deg) saturate(0.45) brightness(0.92) contrast(1.05);
+}
+
 }
 
 /* Glowing icon chip (Nexus / Nova Glass feature icons) */
@@ -256,6 +262,43 @@ aside.pointer-events-auto.absolute.right-0 { position: sticky; }
   place-items: center;
   border-radius: 10px;
   color: var(--ds-primary-soft);
+
+/* ============ WIDGET DENSITY — size-adaptive KPI content ============ */
+/* Widgets measure their own width; content compacts at small sizes so
+   even the minimum grid cell stays readable with zero dead space. */
+.widget-body {
+  container-type: inline-size;
+  container-name: widget;
+  height: 100%;
+  min-height: 0;
+}
+.kpi-row { display: flex; align-items: center; gap: 1rem; height: 100%; }
+.kpi-icon {
+  display: grid; place-items: center;
+  height: 3rem; width: 3rem; flex-shrink: 0;
+  border-radius: 12px;
+}
+.kpi-value {
+  font-size: 30px; font-weight: 700; line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-text);
+}
+.kpi-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+@container widget (max-width: 260px) {
+  .kpi-row { gap: 0.625rem; }
+  .kpi-icon { height: 2.25rem; width: 2.25rem; border-radius: 9px; }
+  .kpi-icon svg { width: 15px; height: 15px; }
+  .kpi-value { font-size: 22px; }
+}
+@container widget (max-width: 170px) {
+  .kpi-icon { display: none; }
+  .kpi-value { font-size: 19px; }
+  .kpi-chips { gap: 4px; }
+  .kpi-chips > span { font-size: 10px; padding: 1px 6px; }
+}
+
   background: linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 26%, transparent));
   box-shadow:
     inset 0 0 0 1px var(--ds-primary-outline),

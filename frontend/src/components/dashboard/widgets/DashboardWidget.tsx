@@ -100,7 +100,7 @@ export default function DashboardWidget({
           )}
         </div>
       </div>
-      <div className="min-h-0 flex-1 p-3">
+      <div className="widget-body min-h-0 flex-1 p-2.5">
         {loading ? (
           <LoadingState label="Loading widget..." className="h-full min-h-20" />
         ) : error ? (

@@ -16,6 +16,7 @@ export default function ChartFrame({ records, type, loading = false, error }: { 
   if (!records.length) return <div className="flex h-full min-h-24 items-center justify-center text-xs text-[var(--ds-text-subtle)]">No telemetry data.</div>;
 
   const values = records.map((record) => record.value);
+  const barColors = ["var(--ds-chart-1)", "var(--ds-chart-2)", "var(--ds-chart-4)", "var(--ds-chart-3)", "var(--ds-chart-6)"];
   const minimum = Math.min(...values);
   const maximum = Math.max(...values);
   const span = maximum - minimum || 1;
@@ -74,8 +75,9 @@ export default function ChartFrame({ records, type, loading = false, error }: { 
                   width={barWidth}
                   height={HEIGHT - PAD - y(record.value)}
                   rx="3"
-                  fill="url(#iot-bar-fill)"
-                  opacity={index === records.length - 1 ? 1 : 0.72}
+                  fill={barColors[index % barColors.length]}
+                  opacity={index === records.length - 1 ? 1 : 0.8}
+                  style={{ filter: `drop-shadow(0 0 4px color-mix(in oklab, ${barColors[index % barColors.length]} 55%, transparent))` }}
                 />
                 {index === records.length - 1 && (
                   <rect
@@ -84,7 +86,8 @@ export default function ChartFrame({ records, type, loading = false, error }: { 
                     width={barWidth}
                     height={3}
                     rx="1.5"
-                    fill="var(--ds-primary-soft)"
+                    fill={barColors[index % barColors.length]}
+                    style={{ filter: "brightness(1.25)" }}
                   />
                 )}
               </g>

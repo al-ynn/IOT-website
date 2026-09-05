@@ -83,3 +83,17 @@ User demanded reference-level drama: full luminous borders, glowing icon chips, 
 - StatusWidget v3: glowing beacon orb in luminous ring + glowing uppercase state label
 - WidgetRenderer: device_count + event_count_tile now glowing icon-chip stat blocks (inline SVG chips, no new deps); global summary tiles get glowing numbers
 - Verified: lint clean, tsc clean (except 3 pre-existing admin files), build passes, dark/light/mobile screenshots confirmed, zero overflow
+
+## Fifth Pass — Vibrant Density + Size-Adaptive Widgets (2026-02)
+User asked: fix wrapping/margins/dead space, smallest widget size must stay readable, zero overlaps, MORE vibrant colors.
+- theme.css: expanded chart palette to 6 vibrant series (blue/green/yellow/orange/red/violet) in both themes
+- globals.css: widget-body container queries — KPI content auto-compacts (icon hides, text shrinks) under 260px/170px widget widths
+- DashboardWidget: tighter padding (p-2.5)
+- DashboardGrid: explicit margin 12px + containerPadding (overlap prevention was already built in via removeOverlaps + allowOverlap=false — verified 25 widgets, 0 intersections)
+- device_count: vibrant blue gradient chip icon + green online / red offline glowing pills
+- event_count_tile: yellow-orange gradient chip + glowing yellow accent pill
+- global summary tiles: per-tile vibrant accent colors (blue/green/red/violet, yellow/red/orange/green) with colored glow
+- ChartFrame bars: alternating vibrant series colors with per-bar glow
+- label widget: vertical centering + glow; connection map: full-height stretched chip rows w/ green/red status; metric_by_devices: space-evenly full-height rows; device_table: sticky header, vibrant status dots
+- Map tiles auto-dark in dark mode via CSS filter (no MapLibre config change)
+- Verified: lint 0 errors, tsc clean, build OK, screenshot both themes, 0 widget overlaps

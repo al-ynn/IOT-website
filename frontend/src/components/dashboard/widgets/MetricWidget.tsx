@@ -1,8 +1,10 @@
 import { TrendingDown, TrendingUp, Minus, Activity } from "lucide-react";
 
 /*
-  KPI widget v3 — neon stat block (reference structure):
-  glowing icon chip → eyebrow label → HUGE glowing number → trend chip.
+  KPI widget v4 — vibrant stat block (reference 3 structure):
+  glowing colored icon chip → eyebrow → glowing number → trend chip.
+  Uses .kpi-* container-query classes: icon drops and text compacts
+  automatically at the smallest widget sizes.
 */
 export default function MetricWidget({
   value,
@@ -19,31 +21,30 @@ export default function MetricWidget({
   const negative = trend?.trim().startsWith("-");
   const TrendIcon = positive ? TrendingUp : negative ? TrendingDown : Minus;
   const tone = positive
-    ? "text-[var(--ds-success)] border-[color-mix(in_oklab,var(--ds-success)_45%,transparent)]"
+    ? "text-[var(--ds-chart-2)] border-[color-mix(in_oklab,var(--ds-chart-2)_45%,transparent)]"
     : negative
-      ? "text-[var(--ds-danger)] border-[color-mix(in_oklab,var(--ds-danger)_45%,transparent)]"
+      ? "text-[var(--ds-chart-5)] border-[color-mix(in_oklab,var(--ds-chart-5)_45%,transparent)]"
       : "text-[var(--ds-primary)] border-[var(--ds-primary-outline)]";
   return (
-    <div className="flex h-full items-center gap-4">
+    <div className="kpi-row">
       <span
         aria-hidden
-        className="grid h-12 w-12 shrink-0 place-items-center rounded-[12px] text-[var(--ds-primary-soft)]"
+        className="kpi-icon text-[var(--ds-primary-soft)]"
         style={{
-          background: "linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 30%, transparent))",
-          boxShadow:
-            "inset 0 0 0 1px var(--ds-primary-outline), 0 0 22px -4px var(--ds-primary-glow)",
+          background: "linear-gradient(145deg, var(--ds-primary-surface), color-mix(in oklab, var(--ds-primary) 32%, transparent))",
+          boxShadow: "inset 0 0 0 1px var(--ds-primary-outline), 0 0 22px -4px var(--ds-primary-glow)",
         }}
       >
         <Activity size={20} />
       </span>
       <div className="flex min-w-0 flex-col gap-1">
         {label && (
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ds-text-subtle)]">
+          <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ds-text-subtle)]">
             {label}
           </p>
         )}
         <p
-          className="flex items-baseline gap-1.5 text-[32px] font-bold leading-none tracking-tight tabular-nums text-[var(--ds-text)]"
+          className="kpi-value flex items-baseline gap-1.5"
           data-numeric
           style={{ textShadow: "0 0 18px var(--ds-primary-glow), 0 0 4px rgb(255 255 255 / .15)" }}
         >

@@ -1,0 +1,1 @@
+import {StatusIndicator} from "../../ui";import type {DeviceStatus as Status} from "../../../types/device";export default function DeviceStatus({status}:{status?:Status}){const normalized=status==="online"?"online":status==="maintenance"?"warning":"offline";return <StatusIndicator status={normalized} label={status??"unknown"}/>}

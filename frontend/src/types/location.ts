@@ -1,0 +1,3 @@
+export interface LocationReference{id:string;name:string;lifecycle:"active"|"disabled"|"archived";isAssignable?:boolean;latitude?:number|null;longitude?:number|null}
+export interface Location extends LocationReference{description:string|null;deviceCount:number|null;access?:"view"|"edit"|"admin"|null;organization?:{id:string;name:string};creator?:{id:string;name:string}|null;createdAt?:string;meaningfulUpdatedAt?:string;capabilities?:{canViewWorkspace?:boolean;canView?:boolean;canUpdate:boolean;canShare?:boolean;canComment?:boolean;canDisable:boolean;canRestore:boolean}}
+export interface LocationPage{data:Location[];current_page:number;last_page:number;total:number}

@@ -1,0 +1,1 @@
+export default function DeferredFeature({name}:{name:string}){return <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-6"><h1 className="text-2xl font-bold text-white">{name}</h1><p className="mt-2 text-amber-200">This feature is not enabled because its secure backend domain is scheduled for a later phase.</p></div>;}

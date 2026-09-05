@@ -1,0 +1,4 @@
+import type{WidgetType}from"../../../types/dashboard";
+export const CORE_WIDGET_RENDERER_TYPES=["switch","slider","label","device_count","device_table","geo_map","image_map","device_connection_map","metrics_over_time","metric_by_devices","event_count_tile","latest_events","event_count_chart","events_over_time","events_breakdown_over_time","events_by_organization","events_by_device","events_by_template","activations"]as const satisfies readonly WidgetType[];
+export const FRONTEND_WIDGET_RENDERER_TYPES=[...CORE_WIDGET_RENDERER_TYPES,"metric","chart","gauge","table","status","device","global_device_summary","global_failure_summary"]as const satisfies readonly WidgetType[];
+export function hasWidgetRenderer(type:string):type is WidgetType{return(FRONTEND_WIDGET_RENDERER_TYPES as readonly string[]).includes(type)}

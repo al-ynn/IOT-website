@@ -1,0 +1,1 @@
+import type {TelemetryRecord} from "../../../types/telemetry";import ChartFrame from "./ChartFrame";export default function BarChart(props:{records:TelemetryRecord[];loading?:boolean;error?:string}){return <ChartFrame {...props} type="bar"/>}

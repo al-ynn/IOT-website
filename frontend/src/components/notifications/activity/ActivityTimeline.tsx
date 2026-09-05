@@ -1,0 +1,2 @@
+import{EmptyState}from"../../ui";import type{ActivityEvent}from"../../../services/activity.service";import ActivityItem from"./ActivityItem";
+export default function ActivityTimeline({events}:{events:ActivityEvent[]}){if(!events.length)return <EmptyState title="No collaboration activity yet" description="Operational events and runtime executions are intentionally shown elsewhere."/>;return <ol className="space-y-4" aria-label="Collaboration activity timeline">{events.map(event=><ActivityItem key={event.id} event={event}/>)}</ol>}

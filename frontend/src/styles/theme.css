@@ -1,0 +1,47 @@
+:root {
+
+  /* Background */
+  --background:
+    222 47% 7%;
+
+  --surface:
+    222 42% 12%;
+
+  --card:
+    215 35% 16%;
+
+
+  /* Borders */
+
+  --border:
+    215 28% 24%;
+
+
+
+  /* Primary */
+
+  --primary:
+    217 91% 60%;
+
+
+  /* IoT Accent */
+
+  --iot-cyan:
+    186 100% 50%;
+
+
+  /* Status Colors */
+
+  --success:
+    142 71% 45%;
+
+
+  --warning:
+    38 92% 50%;
+
+
+  --danger:
+    0 84% 60%;
+
+
+}

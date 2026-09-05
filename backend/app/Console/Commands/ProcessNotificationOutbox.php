@@ -1,0 +1,3 @@
+<?php
+namespace App\Console\Commands;use App\Jobs\ProcessNotificationOutboxEvent;use App\Models\NotificationOutboxEvent;use Illuminate\Console\Command;
+final class ProcessNotificationOutbox extends Command{protected $signature='notifications:process-outbox {--limit=100}';protected $description='Dispatch recoverable notification materialization work.';public function handle():int{NotificationOutboxEvent::whereNull('processed_at')->whereNull('failed_at')->where('available_at','<=',now())->orderBy('id')->limit(max(1,min(500,(int)$this->option('limit'))))->pluck('id')->each(fn(int $id)=>ProcessNotificationOutboxEvent::dispatch($id));return self::SUCCESS;}}

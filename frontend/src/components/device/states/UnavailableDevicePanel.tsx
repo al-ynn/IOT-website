@@ -1,0 +1,1 @@
+import {Ban} from "lucide-react";import {EmptyState} from "../../ui";export default function UnavailableDevicePanel({title,description}:{title:string;description:string}){return <EmptyState title={title} description={description} icon={<Ban size={18}/>}/>}

@@ -1,0 +1,25 @@
+import {useEffect,useState} from "react";
+import {Plus,RefreshCw} from "lucide-react";
+import {Link} from "react-router-dom";
+import {Button,Card,CardContent,CardHeader,EmptyState,ErrorState,Input,Modal,Select,Skeleton,StatusIndicator} from "../../components/ui";
+import {addMonitoredDevice,getAdminDeviceOptions,getMonitoredDashboard,removeMonitoredDevice} from "../../services/admin.service";
+import type {AdminDeviceOption,AdminMonitoredDashboard} from "../../types/admin";
+
+export default function AdminMonitoredDashboardPage(){
+ const [data,setData]=useState<AdminMonitoredDashboard|null>(null);const [error,setError]=useState("");const [loading,setLoading]=useState(true);const [refresh,setRefresh]=useState(0);const [open,setOpen]=useState(false);const [options,setOptions]=useState<AdminDeviceOption[]>([]);const [device,setDevice]=useState("");const [search,setSearch]=useState("");
+ useEffect(()=>{let active=true;getMonitoredDashboard().then(v=>{if(active)setData(v);}).catch(()=>{if(active)setError("Monitored devices could not be loaded.");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[refresh]);
+ useEffect(()=>{if(!open)return;const timer=setTimeout(()=>getAdminDeviceOptions({exclude_monitored:"1",search:search||undefined}).then(setOptions).catch(()=>setError("Eligible devices could not be loaded.")),250);return()=>clearTimeout(timer);},[open,search]);
+ const reload=()=>{setLoading(true);setError("");setRefresh(v=>v+1);};
+ const add=async()=>{if(!device)return;await addMonitoredDevice(device);setOpen(false);setDevice("");reload();};
+ const remove=async(id:string,name:string)=>{if(!confirm(`Remove ${name} from your monitored devices?`))return;await removeMonitoredDevice(id);reload();};
+ return <div className="space-y-5">
+  <header className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-semibold">Dashboard</h1><p className="mt-1 text-sm text-[var(--ds-text-muted)]">Focused view of your monitored devices.</p></div><div className="flex gap-2"><Button size="small" variant="outline" leadingIcon={<RefreshCw size={14}/>} loading={loading} onClick={reload}>Refresh</Button><Button size="small" leadingIcon={<Plus size={14}/>} onClick={()=>setOpen(true)}>Add Monitored Devices</Button></div></header>
+  {error?<Card><ErrorState description={error} retry={reload}/></Card>:loading&&!data?<Skeleton className="h-80"/>:data&&<DashboardContent data={data} onAdd={()=>setOpen(true)} onRemove={remove}/>} 
+  <Modal open={open} onClose={()=>setOpen(false)} title="Add Monitored Device" description="This changes only your personal dashboard preference." footer={<><Button variant="ghost" onClick={()=>setOpen(false)}>Cancel</Button><Button disabled={!device} onClick={()=>void add()}>Add</Button></>}><div className="space-y-3"><Input label="Search global devices" value={search} onChange={e=>setSearch(e.target.value)}/><Select label="Device" value={device} onChange={e=>setDevice(e.target.value)}><option value="">Select device</option>{options.map(o=><option key={o.id} value={o.id}>{o.name} · {o.organizationName}</option>)}</Select></div></Modal>
+ </div>;
+}
+
+function DashboardContent({data,onAdd,onRemove}:{data:AdminMonitoredDashboard;onAdd():void;onRemove(id:string,name:string):Promise<void>}){
+ if(data.summary.total===0)return <Card><EmptyState title="No monitored devices yet." description="Choose devices to create a focused operations dashboard." action={<Button size="small" onClick={onAdd}>Add Monitored Devices</Button>}/></Card>;
+ return <><section aria-label="Monitored summary" className="grid grid-cols-3 gap-3">{[["Monitored Devices",data.summary.total],["Online",data.summary.online],["Offline",data.summary.offline]].map(([label,value])=><Card key={String(label)}><CardContent><p className="text-xs text-[var(--ds-text-muted)]">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p></CardContent></Card>)}</section><Card><CardHeader title="Monitored Devices" description={`Showing your selected devices${data.summary.total>data.displayLimit?` (first ${data.displayLimit})`:""}.`}/><div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-xs"><thead><tr className="text-[var(--ds-text-muted)]"><th className="p-3">Device</th><th className="p-3">Organization</th><th className="p-3">Status</th><th className="p-3">Last Activity</th><th className="p-3">Assigned Staff</th><th className="p-3 text-right">Actions</th></tr></thead><tbody>{data.devices.map(d=><tr key={d.id} className="border-t border-[var(--ds-border-subtle)]"><td className="p-3"><Link className="font-medium" to={`/admin/devices/${d.id}`}>{d.name}</Link></td><td className="p-3">{d.organization.name}</td><td className="p-3"><StatusIndicator status={d.status}/></td><td className="p-3">{d.lastActivity?new Date(d.lastActivity).toLocaleString():"Never"}</td><td className="p-3">{d.assignedStaffCount}</td><td className="p-3 text-right"><Button size="compact" variant="outline" onClick={()=>void onRemove(d.id,d.name)}>Remove from Monitoring</Button></td></tr>)}</tbody></table></div></Card></>;
+}

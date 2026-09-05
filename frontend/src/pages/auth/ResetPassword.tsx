@@ -1,0 +1,2 @@
+import {Link} from "react-router-dom";import AuthLayout from "../../components/auth/AuthLayout";import {BodyText,Button,PageTitle} from "../../components/ui";
+export default function ResetPassword(){return <AuthLayout><PageTitle className="text-2xl">Password reset unavailable</PageTitle><BodyText className="mt-3">This deployment does not currently expose a password-reset endpoint. No account changes have been made.</BodyText><Link to="/login" className="mt-6 block"><Button className="w-full">Return to login</Button></Link></AuthLayout>}

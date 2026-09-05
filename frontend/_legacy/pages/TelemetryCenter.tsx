@@ -1,0 +1,1 @@
+import TelemetryHeader from "../../components/telemetry/layout/TelemetryHeader";import TelemetryPanel from "../../components/telemetry/layout/TelemetryPanel";export default function TelemetryCenter(){return <div className="space-y-5"><TelemetryHeader/><TelemetryPanel/></div>}

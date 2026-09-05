@@ -1,0 +1,46 @@
+import {expect,test} from "./fixtures/test";
+
+test("single sample system loads its complete backend-backed Dashboard",async({page})=>{
+ test.setTimeout(90_000);
+ const login=await page.request.post("http://127.0.0.1:18000/api/auth/login",{data:{email:"admin@iot-platform.test",password:"Admin123!"}});
+ expect(login.ok()).toBeTruthy();
+ const session=await login.json() as {token:string};
+ await page.addInitScript(token=>localStorage.setItem("iot_token",token),session.token);
+ await page.goto("/app/dashboard");
+ await expect(page.getByRole("heading",{name:"Sample Device Dashboard"})).toBeVisible({timeout:30_000});
+ await expect(page.locator('[aria-label$=" widget"]')).toHaveCount(25);
+ await expect(page.getByText("Sample Device — Environmental Controller").first()).toBeVisible();
+ await expect(page.getByText("No telemetry data.")).toHaveCount(0);
+ await expect(page.getByText("No data returned for this widget.")).toHaveCount(0);
+ await expect(page.getByText("System operating normally")).toBeVisible();
+ await expect(page.getByText("1",{exact:true}).first()).toBeVisible();
+ await expect(page.getByText("24",{exact:true}).first()).toBeVisible();
+ await expect(page.locator('[aria-label="Geographic map of authorized Device locations"]')).toHaveCount(1);
+ await expect(page.locator('[aria-label="Device floorplan with overlay markers"]')).toHaveCount(1);
+ await expect(page.getByRole("switch")).toBeDisabled();
+ await expect(page.getByLabel("Read-only Device value")).toBeDisabled();
+ await expect(page.getByText("Operational Dashboard.")).toHaveCount(0);
+ await page.getByRole("button",{name:"Customize Dashboard"}).click();
+ const widgetBoxToggle=page.getByRole("button",{name:"Minimize Widget Box"});
+ const settingsToggle=page.getByRole("button",{name:"Minimize Widget settings"});
+ await expect(widgetBoxToggle).toBeVisible();
+ await expect(settingsToggle).toBeVisible();
+ const widgetPanel=page.locator('[data-dashboard-floating-panel="left"]');
+ const settingsPanel=page.locator('[data-dashboard-floating-panel="right"]');
+ await expect(widgetPanel).toHaveCSS("position","absolute");
+ await expect(settingsPanel).toHaveCSS("position","absolute");
+ const before=await widgetPanel.boundingBox();
+ if(before){await page.mouse.move(before.x+20,before.y+20);await page.mouse.down();await page.mouse.move(before.x+80,before.y+180);await page.mouse.up();const after=await widgetPanel.boundingBox();expect(after?.y).not.toBe(before.y);}
+ await widgetBoxToggle.click();
+ await expect(page.getByRole("button",{name:"Expand Widget Box"})).toBeVisible();
+ await expect(page.getByText("Search widgets")).toHaveCount(0);
+ await page.getByRole("button",{name:"Expand Widget Box"}).click();
+ await settingsToggle.click();
+ await expect(page.getByRole("button",{name:"Expand Widget settings"})).toBeVisible();
+ await expect(page.getByText("Keyboard layout controls")).toHaveCount(0);
+ await page.getByRole("button",{name:"Expand Widget settings"}).click();
+ await page.getByRole("button",{name:"Cancel"}).click();
+ await page.reload();
+ await expect(page.getByRole("heading",{name:"Sample Device Dashboard"})).toBeVisible();
+ await expect(page.locator('[aria-label$=" widget"]')).toHaveCount(25);
+});

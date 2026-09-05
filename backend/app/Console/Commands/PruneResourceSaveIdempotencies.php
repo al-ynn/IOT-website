@@ -1,0 +1,3 @@
+<?php
+namespace App\Console\Commands;use App\Models\ResourceSaveIdempotency;use Illuminate\Console\Command;
+final class PruneResourceSaveIdempotencies extends Command{protected $signature='revisions:prune-idempotency {--limit=1000}';protected $description='Prune expired completed save idempotency records.';public function handle():int{$ids=ResourceSaveIdempotency::whereNotNull('completed_at')->where('expires_at','<',now())->orderBy('id')->limit(max(1,min(5000,(int)$this->option('limit'))))->pluck('id');ResourceSaveIdempotency::whereIn('id',$ids)->delete();$this->info("Pruned {$ids->count()} expired idempotency records.");return self::SUCCESS;}}

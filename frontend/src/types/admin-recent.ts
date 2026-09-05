@@ -1,0 +1,4 @@
+export type AdminRecentResourceType="device"|"device_template"|"automation"|"report"|"webhook"|"location"|"firmware";
+export interface AdminRecentItem{resourceType:AdminRecentResourceType;resourceTypeLabel?:string;resourceId:string;resourceLabel:string;organization:{id:string;name:string}|null;lifecycle:string;actor:{id:string;name:string;inactive:boolean}|null;occurredAt:string;revision:{id:string;number:number;summary:string;changedSections:string[]}|null;resourceLink:string;viewState:"not_viewed"|"viewed"|"updated_since_view";firstViewedAt:string|null;lastViewedAt:string|null}
+export interface AdminRecentPage{data:AdminRecentItem[];current_page:number;last_page:number;per_page:number;total:number}
+export interface AdminRecentFilters{resource_type?:AdminRecentResourceType;organization_id?:string;lifecycle?:"active"|"disabled"|"archived";window?:"24h"|"7d"|"30d"|"90d"|"all";search?:string;sort?:"newest"|"oldest";page?:number}

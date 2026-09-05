@@ -1,0 +1,3 @@
+<?php
+namespace App\Models;use Illuminate\Database\Eloquent\Model;
+final class ResourceRevisionState extends Model{protected $guarded=[];public function user(){return $this->belongsTo(User::class);}public function acceptedRevision(){return $this->belongsTo(ResourceRevision::class,'accepted_revision_id');}public function seenLatestRevision(){return $this->belongsTo(ResourceRevision::class,'seen_latest_revision_id');}public function lastReviewedRevision(){return $this->belongsTo(ResourceRevision::class,'last_reviewed_revision_id');}public function ignoredRevision(){return $this->belongsTo(ResourceRevision::class,'ignored_revision_id');}}

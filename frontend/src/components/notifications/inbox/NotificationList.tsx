@@ -1,0 +1,2 @@
+import type {AppNotification} from "../../../types/notification";import NotificationItem from "./NotificationItem";import NotificationEmpty from "../states/NotificationEmpty";
+export default function NotificationList({items,onRead}:{items:AppNotification[];onRead?(id:string):void}){if(!items.length)return <NotificationEmpty/>;return <ul className="space-y-3" aria-label="Notifications">{items.map(item=><NotificationItem key={item.id} notification={item} onRead={onRead}/>)}</ul>}

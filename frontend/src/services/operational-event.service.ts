@@ -1,0 +1,5 @@
+import api from "./api";import type {OperationalEvent,OperationalEventFilters,OperationalEventListResponse} from "../types/operational-event";
+export async function listOperationalEvents(filters:OperationalEventFilters={}){return (await api.get<OperationalEventListResponse>("/operational-events",{params:filters})).data;}
+export async function listDeviceEvents(filters:Record<string,unknown>={}){const r=await api.get<any>("/device-events",{params:filters});return {data:(r.data.data||[]).map((e:any)=>({id:e.id,eventType:e.code,title:e.name,message:e.message,occurredAt:e.occurredAt,organization:{name:"Current organization"},device:e.device?{id:e.device.id,name:e.device.name}:undefined})),meta:r.data.meta};}
+export async function getOperationalEvent(id:string){return (await api.get<{data:OperationalEvent}>(`/operational-events/${id}`)).data.data;}
+export async function listAdminOperationalEvents(filters:OperationalEventFilters&{organization_id?:string}={}){return (await api.get<OperationalEventListResponse>("/admin/operational-events",{params:filters})).data;}

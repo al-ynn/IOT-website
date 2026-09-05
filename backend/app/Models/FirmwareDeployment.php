@@ -1,0 +1,4 @@
+<?php
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+class FirmwareDeployment extends Model { public const STATUSES=['delivery_unavailable'];protected $fillable=['organization_id','firmware_artifact_id','firmware_release_id','created_by','status','failed_at','failure_message'];protected $casts=['failed_at'=>'datetime'];public function organization(){return $this->belongsTo(Organization::class);}public function artifact(){return $this->belongsTo(FirmwareArtifact::class,'firmware_artifact_id');}public function release(){return $this->belongsTo(FirmwareRelease::class,'firmware_release_id');}public function creator(){return $this->belongsTo(User::class,'created_by');}public function targets(){return $this->hasMany(FirmwareDeploymentDevice::class);}public function operationalEvents(){return $this->hasMany(OperationalEvent::class);} }

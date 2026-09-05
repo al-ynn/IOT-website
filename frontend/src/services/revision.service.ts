@@ -1,0 +1,2 @@
+import api from"./api";import type{RevisionDetail,RevisionPage}from"../types/revision";
+export const revisionService={list:async(type:string,id:string,page=1)=>{const{data}=await api.get<RevisionPage>(`/collaboration/resources/${type}/${id}/revisions`,{params:{page}});return data},detail:async(type:string,id:string,revisionId:string)=>{const{data}=await api.get<RevisionDetail>(`/collaboration/resources/${type}/${id}/revisions/${revisionId}`);return data}};

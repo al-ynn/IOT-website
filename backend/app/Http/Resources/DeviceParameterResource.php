@@ -1,0 +1,3 @@
+<?php
+namespace App\Http\Resources;use Illuminate\Http\Request;use Illuminate\Http\Resources\Json\JsonResource;
+class DeviceParameterResource extends JsonResource{public function toArray(Request $request):array{return ['id'=>(string)$this->id,'deviceId'=>(string)$this->device_id,'name'=>$this->name,'key'=>$this->key,'dataType'=>$this->data_type,'unit'=>$this->unit,'description'=>$this->description,'semantic'=>$this->semantic,'configuration'=>$this->configuration??[],'latestValue'=>$this->getAttribute('latest_value'),'latestRecordedAt'=>$this->getAttribute('latest_recorded_at')?->toISOString(),'createdAt'=>$this->created_at?->toISOString(),'updatedAt'=>$this->updated_at?->toISOString()];}}

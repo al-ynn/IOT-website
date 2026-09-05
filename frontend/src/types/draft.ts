@@ -1,0 +1,3 @@
+import type {ResourceRevision} from "./revision";
+export interface RevisionConflict{code:"revision_conflict";message:string;resource:{type:string;id:string};submittedBaseRevision:ResourceRevision;latestRevision:ResourceRevision;latestContributor:{id:string;name:string}|null;latestUpdatedAt:string;changedSections:string[];canSaveDraft:boolean;canReviewChanges:boolean;canDiscardAndPull:boolean}
+export interface ResourceDraft{id:string;resourceType:string;resourceId:string;baseRevisionId:string;baseRevisionNumber:number;latestRevisionId:string;isBehind:boolean;draftSchemaVersion:number;snapshot:Record<string,unknown>;updatedAt:string}

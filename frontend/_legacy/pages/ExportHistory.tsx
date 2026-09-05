@@ -1,0 +1,2 @@
+import {Card} from "../../components/ui";import ReportHeader from "../../components/reports/layout/ReportHeader";import ReportUnavailable from "../../components/reports/states/ReportUnavailable";
+export default function ExportHistory(){return <div className="mx-auto max-w-6xl space-y-5"><ReportHeader title="Exports" description="Backend-generated files and download availability."/><Card><ReportUnavailable title="Export history unavailable" description="Laravel exposes no export history or download endpoints. No browser-generated files are offered."/></Card></div>}

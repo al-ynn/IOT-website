@@ -1,0 +1,7 @@
+<?php
+namespace App\Console\Commands;
+use App\Exceptions\FeatureNotAvailableException;use App\Models\AutomationSchedule;use App\Services\Automation\AutomationExecutionService;use App\Services\Automation\AutomationScheduleService;use Illuminate\Console\Command;use Ramsey\Uuid\Uuid;
+class RunAutomationSchedules extends Command{
+ protected $signature='automation:run-schedules';protected $description='Execute due automation schedules';
+ public function handle(AutomationExecutionService $service,AutomationScheduleService $schedules):int{$due=AutomationSchedule::where('enabled',true)->where('next_run_at','<=',now())->whereHas('automation',fn($q)=>$q->where('enabled',true)->where('status','active'))->with(['automation.organization.users','automation.actions','automation.conditions','automation.triggers','automation.schedules'])->limit(500)->get();foreach($due as $schedule){$occurrence=$schedule->next_run_at->copy();$correlation=(string)Uuid::uuid5(Uuid::NAMESPACE_URL,'schedule-'.$schedule->id.'-'.$occurrence->timestamp);try{$service->execute($schedule->automation,'schedule',['scheduledAt'=>$occurrence->toISOString()],$correlation);}catch(FeatureNotAvailableException){continue;}$enabled=$schedule->type!=='once';$schedule->enabled=$enabled;$schedule->update(['enabled'=>$enabled,'last_run_at'=>$occurrence,'next_run_at'=>$enabled?$schedules->nextFor($schedule,$occurrence):null]);}return self::SUCCESS;}
+}

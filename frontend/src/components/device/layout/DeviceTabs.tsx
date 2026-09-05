@@ -1,0 +1,3 @@
+import ResourceTabs from "../../layout/ResourceTabs";
+import {resolveResourceTabs,type ResourceTabCapability} from "../../../navigation/resource-tabs";
+export default function DeviceTabs({basePath,admin=false,requestedTab,capabilities}:{basePath:string;admin?:boolean;requestedTab:string|null;capabilities:Partial<Record<ResourceTabCapability,boolean>>}){const resolved=resolveResourceTabs("device",requestedTab,{admin,capabilities});const items=resolved.tabs.map(tab=>({id:tab.key,label:tab.label,to:tab.key==="overview"?basePath:`${basePath}?tab=${tab.key}`}));return <ResourceTabs items={items} activeId={resolved.activeKey} label="Device sections"/>}

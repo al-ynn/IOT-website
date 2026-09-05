@@ -1,0 +1,2 @@
+import{Component,type ReactNode}from"react";
+export default class WidgetErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return{failed:true}}componentDidCatch(){/* Intentionally suppress sensitive renderer details from UI. */}render(){return this.state.failed?<div role="alert" className="flex h-full min-h-32 items-center justify-center rounded-md border border-[var(--ds-border)] p-4 text-center text-xs text-[var(--ds-danger)]">This widget could not be rendered safely.</div>:this.props.children}}

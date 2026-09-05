@@ -1,0 +1,8 @@
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, ErrorState, LoadingState } from "../../components/ui";
+import { SettingsHeader, SettingsLayout } from "../../components/settings/layout/SettingsLayout";
+import ProfileForm from "../../components/settings/profile/ProfileForm";
+import { getProfile } from "../../services/profile.service";
+import type { UserProfile } from "../../types/profile";
+
+export default function Profile(){const [profile,setProfile]=useState<UserProfile|null>(null);const [loading,setLoading]=useState(true);const [error,setError]=useState(false);async function load(){setLoading(true);setError(false);try{setProfile(await getProfile());}catch{setError(true);}finally{setLoading(false);}}useEffect(()=>{getProfile().then(setProfile).catch(()=>setError(true)).finally(()=>setLoading(false))},[]);return <SettingsLayout><SettingsHeader title="Profile" description="Keep your personal account information current."/>{loading?<Card><LoadingState label="Loading profile..."/></Card>:error||!profile?<Card><ErrorState description="Your profile could not be loaded." retry={()=>void load()}/></Card>:<><ProfileForm profile={profile} onSaved={setProfile}/><Card><CardHeader title="Account information" description="Read-only details assigned by the platform."/><CardContent className="grid gap-4 text-sm sm:grid-cols-2"><div><p className="text-xs text-[var(--ds-text-muted)]">Role</p><p className="mt-1 capitalize text-[var(--ds-text)]">{profile.role?.replaceAll("_"," ")??"Member"}</p></div><div><p className="text-xs text-[var(--ds-text-muted)]">Member since</p><p className="mt-1 text-[var(--ds-text)]">{new Date(profile.createdAt).toLocaleDateString()}</p></div></CardContent></Card></>}</SettingsLayout>}

@@ -78,7 +78,7 @@
   --ds-chart-4: #FB923C;
   --ds-chart-5: #F87171;
   --ds-chart-6: #A78BFA;
-  --ds-chart-grid: rgb(147 197 253 / .08);
+  --ds-chart-grid: rgb(147 197 253 / .18);
 }
 
 .theme-light {
@@ -91,10 +91,10 @@
   --ds-card-alt: #F3F4F6;
   --ds-overlay-panel: #FFFFFF;
 
-  --ds-border: #E5E7EB;
-  --ds-border-strong: #D1D5DB;
-  --ds-border-subtle: rgb(31 41 55 / .10);
-  --ds-border-luminous: rgb(59 130 246 / .5);
+  --ds-border: #E7CF67;
+  --ds-border-strong: #D4A90B;
+  --ds-border-subtle: rgb(202 138 4 / .22);
+  --ds-border-luminous: #EAB308;
   --ds-inset-highlight: rgb(255 255 255 / .95);
   --ds-inset-shadow: rgb(31 41 55 / .07);
 
@@ -106,10 +106,10 @@
   --ds-primary-outline: rgb(59 130 246 / .35);
   --ds-primary-glow: rgb(59 130 246 / .4);
 
-  --ds-accent: #EAB308;
-  --ds-accent-soft: #FDE68A;
-  --ds-accent-surface: #FEF9C3;
-  --ds-accent-outline: rgb(234 179 8 / .4);
+  --ds-accent: #DDAA00;
+  --ds-accent-soft: #FACC15;
+  --ds-accent-surface: #FFF4A8;
+  --ds-accent-outline: #EAB308;
 
   --ds-success: #15803D;
   --ds-success-surface: #DCFCE7;
@@ -147,7 +147,7 @@
   --ds-chart-4: #FB923C;
   --ds-chart-5: #EF4444;
   --ds-chart-6: #8B5CF6;
-  --ds-chart-grid: rgb(31 41 55 / .07);
+  --ds-chart-grid: rgb(31 41 55 / .16);
 }
 
 /* Legacy aliases */

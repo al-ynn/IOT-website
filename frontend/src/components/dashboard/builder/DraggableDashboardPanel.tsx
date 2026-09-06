@@ -4,11 +4,12 @@ interface Props {
   side: "left" | "right";
   label: string;
   expanded: boolean;
+  passThrough?: boolean;
   onActivate?: () => void;
   children: ReactNode;
 }
 
-export default function DraggableDashboardPanel({ side, label, expanded, onActivate, children }: Props) {
+export default function DraggableDashboardPanel({ side, label, expanded, passThrough = false, onActivate, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const dragRef = useRef<{ pointerX: number; pointerY: number; left: number; top: number; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
@@ -59,7 +60,7 @@ export default function DraggableDashboardPanel({ side, label, expanded, onActiv
     <aside
       ref={panelRef}
       data-dashboard-floating-panel={side}
-      className={`pointer-events-auto absolute z-40 max-w-full ${expanded ? "w-[min(280px,calc(100vw-2rem))]" : "w-auto"}`}
+      className={`${passThrough ? "pointer-events-none" : "pointer-events-auto"} absolute z-40 max-w-full ${expanded ? "w-[min(280px,calc(100vw-2rem))]" : "w-auto"}`}
       style={position}
       aria-label={label}
       onPointerDown={startDrag}

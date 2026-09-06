@@ -18,17 +18,17 @@ export default function StatusWidget({
     error: { badge: "danger" as const, dot: "var(--ds-danger)" },
   }[status];
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3">
+    <div className="flex h-full flex-col items-center justify-center gap-1.5">
       <span
         aria-hidden
-        className={`relative grid h-14 w-14 place-items-center rounded-full ${status === "online" ? "pulse-dot" : ""}`}
+        className={`relative grid h-10 w-10 place-items-center rounded-full ${status === "online" ? "pulse-dot" : ""}`}
         style={{
           background: "var(--ds-bg)",
           boxShadow: `0 0 0 1px var(--ds-border-luminous), 0 0 24px -4px color-mix(in oklab, ${tones.dot} 70%, transparent), inset 0 2px 6px rgb(0 0 0 / .5)`,
         }}
       >
         <span
-          className="h-5 w-5 rounded-full"
+          className="h-3.5 w-3.5 rounded-full"
           style={{
             background: tones.dot,
             boxShadow: status === "offline" ? "none" : `0 0 14px 3px color-mix(in oklab, ${tones.dot} 75%, transparent)`,

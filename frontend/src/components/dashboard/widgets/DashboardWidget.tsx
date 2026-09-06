@@ -29,16 +29,12 @@ export default function DashboardWidget({
   return (
     <section
       aria-label={`${title} widget`}
-      className="group/widget relative flex h-full min-h-32 flex-col overflow-hidden rounded-[14px] transition-[box-shadow,border-color] duration-200"
+      className="group/widget relative flex h-full min-h-0 flex-col overflow-hidden rounded-[14px] transition-[box-shadow,border-color] duration-200"
       style={{
         background:
           "linear-gradient(165deg, color-mix(in oklab, var(--ds-card-alt) 60%, var(--ds-card)), var(--ds-card) 55%)",
         border: "1px solid var(--ds-border-luminous)",
-        boxShadow:
-          "0 0 0 1px color-mix(in oklab, var(--ds-primary) 12%, transparent), " +
-          "0 0 22px -6px var(--ds-primary-glow), " +
-          "inset 0 0 32px -18px var(--ds-primary-glow), " +
-          "var(--ds-shadow-md)",
+        boxShadow: "none",
       }}
     >
       {/* luminous top beam */}
@@ -106,12 +102,12 @@ export default function DashboardWidget({
         ) : error ? (
           <div
             role="alert"
-            className="flex h-full min-h-20 items-center justify-center gap-2 text-center text-xs text-[var(--ds-danger)]"
+            className="flex h-full min-h-0 items-center justify-center gap-2 text-center text-xs text-[var(--ds-danger)]"
           >
             <AlertCircle size={15} /> {error}
           </div>
         ) : empty ? (
-          <div className="flex h-full min-h-20 items-center justify-center text-center text-xs text-[var(--ds-text-subtle)]">
+          <div className="flex h-full min-h-0 items-center justify-center text-center text-xs text-[var(--ds-text-subtle)]">
             {emptyText}
           </div>
         ) : (

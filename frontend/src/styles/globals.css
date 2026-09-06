@@ -207,6 +207,34 @@ button, a, input, select, textarea {
 input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
+/* Native and shared dropdowns use the active theme, including the browser-owned menu. */
+select {
+  color: var(--ds-text);
+  background-color: var(--ds-surface);
+  border-color: var(--ds-border);
+  cursor: pointer;
+}
+select:hover:not(:disabled) {
+  border-color: var(--ds-border-strong);
+  background-color: var(--ds-surface-elevated);
+}
+select:focus:not(:disabled), select:focus-visible:not(:disabled) {
+  border-color: var(--ds-primary);
+  box-shadow: 0 0 0 2px var(--ds-primary-outline);
+}
+select:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+select option, select optgroup {
+  color: var(--ds-text);
+  background-color: var(--ds-overlay-panel);
+}
+select option:checked {
+  color: var(--ds-text-inverse);
+  background: var(--ds-primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
@@ -217,6 +245,12 @@ button { cursor: pointer; }
 }
 
 /* ================= DASHBOARD GRID (preserved) ================= */
+.dashboard-grid.grid-interacting .react-grid-item {
+  transition: none !important;
+}
+.dashboard-grid .react-grid-item {
+  overflow: hidden;
+}
 .dashboard-grid .react-grid-item > .react-resizable-handle-se {
   right: -1px; bottom: -1px; width: 24px; height: 24px;
   border: 0; background: transparent; opacity: 0; transition: opacity 120ms ease;
@@ -233,9 +267,37 @@ button { cursor: pointer; }
 .dashboard-widget-drag-surface:active { cursor: grabbing; }
 .dashboard-grid .react-grid-item.react-grid-placeholder {
   border-radius: 12px;
-  background: var(--ds-primary);
-  opacity: .18;
-  box-shadow: var(--ds-glow-primary);
+  border: 2px solid var(--ds-success);
+  background: var(--ds-success-surface);
+  opacity: .72;
+  box-shadow: none;
+}
+.dashboard-grid.placement-invalid .react-grid-item.react-grid-placeholder {
+  border-color: var(--ds-danger);
+  background: var(--ds-danger-surface);
+}
+
+/* Light theme: solid yellow structural accents without changing layout. */
+.theme-light aside[aria-label*="navigation"] {
+  border-color: var(--ds-accent);
+  box-shadow: inset -3px 0 0 var(--ds-accent-soft);
+}
+
+.theme-light aside[aria-label*="navigation"] > :first-child {
+  border-bottom-color: var(--ds-accent);
+}
+
+.theme-light aside[aria-label*="navigation"] a[aria-current="page"] {
+  border-left-color: var(--ds-accent) !important;
+  box-shadow: inset 3px 0 0 var(--ds-accent);
+}
+
+.theme-light .dashboard-grid .react-grid-item > section {
+  border-color: var(--ds-accent) !important;
+}
+
+.theme-light .dashboard-grid .react-grid-item > section > div:first-of-type {
+  border-bottom-color: var(--ds-accent-outline);
 }
 
 aside.pointer-events-auto.absolute.left-0,
@@ -325,6 +387,16 @@ aside.pointer-events-auto.absolute.right-0 { position: sticky; }
   border-radius: 16px;
 }
 .kpi-icon svg { width: 26px; height: 26px; }
+/* A label stays visually text-led even when its widget is stretched wide. */
+.kpi-row:has(> .kpi-icon + p) > .kpi-icon {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 10px;
+}
+.kpi-row:has(> .kpi-icon + p) > .kpi-icon svg {
+  width: 17px;
+  height: 17px;
+}
 .kpi-value {
   font-size: 32px; font-weight: 700; line-height: 1;
   letter-spacing: -0.02em;

@@ -19,7 +19,7 @@ export default function GaugeWidget({
   return (
     <div className="flex h-full items-center justify-center">
       <div
-        className="relative grid h-32 w-32 place-items-center rounded-full"
+        className="relative grid h-[104px] w-[104px] max-h-full max-w-full place-items-center rounded-full"
         role="img"
         aria-label={`${value}${unit ?? ""}, ${Math.round(percent)} percent of range`}
         style={{
@@ -40,7 +40,7 @@ export default function GaugeWidget({
             style={{
               background: lit ? (hot ? "var(--ds-chart-3)" : "var(--ds-primary-soft)") : "color-mix(in oklab, var(--ds-text-subtle) 35%, transparent)",
               boxShadow: lit ? `0 0 4px ${hot ? "var(--ds-chart-3)" : "var(--ds-primary-glow)"}` : "none",
-              transform: `rotate(${deg}deg) translateY(-60px)`,
+              transform: `rotate(${deg}deg) translateY(-48px)`,
               opacity: i % 6 === 0 ? 1 : 0.5,
             }}
           />
@@ -57,7 +57,7 @@ export default function GaugeWidget({
           }}
         />
         <div
-          className="grid h-[92px] w-[92px] place-items-center rounded-full"
+          className="grid h-[76px] w-[76px] place-items-center rounded-full"
           style={{
             background: "radial-gradient(circle at 50% 35%, color-mix(in oklab, var(--ds-primary) 12%, var(--ds-card)), var(--ds-card))",
             boxShadow: "inset 0 2px 6px rgb(0 0 0 / .45), inset 0 0 0 1px var(--ds-border-subtle)",

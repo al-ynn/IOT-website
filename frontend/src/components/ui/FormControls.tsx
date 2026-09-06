@@ -6,6 +6,7 @@ import {
   type TextareaHTMLAttributes,
   type ReactNode,
 } from "react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface FieldProps {
@@ -111,19 +112,22 @@ export const Select = forwardRef<
   const fieldId = id ?? generated;
   return (
     <Field id={fieldId} label={label} helperText={helperText} error={error} className={className}>
-      <select
-        ref={ref}
-        id={fieldId}
-        aria-invalid={!!error}
-        className={cn(
-          control,
-          "appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%239CA3AF%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22/></svg>')] bg-[length:12px] bg-[right_.75rem_center] bg-no-repeat pr-9",
-          error && "border-[var(--ds-danger)]",
-        )}
-        {...props}
-      >
-        {children}
-      </select>
+      <div className="group relative">
+        <select
+          ref={ref}
+          id={fieldId}
+          aria-invalid={!!error}
+          className={cn(
+            control,
+            "appearance-none pr-9",
+            error && "border-[var(--ds-danger)]",
+          )}
+          {...props}
+        >
+          {children}
+        </select>
+        {!props.multiple && <ChevronDown aria-hidden size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ds-text-muted)] transition-colors group-focus-within:text-[var(--ds-primary)]" />}
+      </div>
     </Field>
   );
 });

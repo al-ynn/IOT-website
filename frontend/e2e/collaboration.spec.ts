@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures/test";
+import { expect, test, type BrowserContext, type Page } from "./fixtures/test";
 
 const password="Browser123!";
 const tokens:Record<string,string>={viewer:"10301|phase103-viewer-token",unassigned:"10302|phase103-unassigned-token",admin1:"10303|phase103-admin1-token",admin2:"10304|phase103-admin2-token",full:"10305|phase103-full-token",editor2:"10306|phase103-editor2-token",recipient:"10307|phase103-recipient-token"};
@@ -12,6 +12,11 @@ async function login(page:Page,email:string){
 }
 
 async function authenticate(page:Page,token:string){await page.addInitScript(value=>localStorage.setItem("iot_token",value),token);await page.goto("/app/collaboration");await expect(page).not.toHaveURL(/\/login$/);}
+
+async function closeContextCleanly(context: BrowserContext) {
+  await Promise.all(context.pages().map(page => page.goto("about:blank", { waitUntil: "commit" }).catch(() => null)));
+  await context.close();
+}
 
 function observe(page:Page){
   const consoleErrors:string[]=[];const exceptions:string[]=[];const failed:string[]=[];const serverErrors:string[]=[];
@@ -92,7 +97,7 @@ test("two Admin browser contexts claim, take over, and release one exact submitt
   admin2.once("dialog",dialog=>dialog.accept());await admin2.getByRole("button",{name:"Take Over"}).click();await expect(admin2.getByText(/^My Review .*Submitted by/)).toBeVisible();
   await admin1.reload();await expect(admin1.getByText("In Review by Phase103 Admin Two")).toBeVisible();
   admin2.once("dialog",dialog=>dialog.accept());await admin2.getByRole("button",{name:"Release Review"}).click();await expect(admin2.getByText(/^Available for Review .*Submitted by/)).toBeVisible();
-  await first.close();await second.close();
+  await closeContextCleanly(first);await closeContextCleanly(second);
 });
 
 test("Viewer reviews, schedules, ignores, and Pulls an actual behind Dashboard revision",async({page})=>{
@@ -111,7 +116,7 @@ test("two real editors receive a stale-save conflict and can preserve work as a 
   const b=await second.newPage();await b.goto("http://127.0.0.1:15173/app/devices/1?tab=dashboard");await Promise.all([b.waitForResponse(r=>r.url().includes("/editing-sessions")&&r.request().method()==="POST"),b.getByRole("button",{name:"Customize Dashboard"}).click()]);
   await a.getByLabel("Dashboard name").fill("Phase103 Editor A Dashboard");const firstSave=a.waitForResponse(r=>r.url().includes("/dashboard")&&r.request().method()==="PATCH");await a.getByRole("button",{name:"Save Dashboard"}).click();const firstResponse=await firstSave;expect(firstResponse.status(),`${await firstResponse.text()}\n${firstResponse.request().postData()}`).toBe(200);await expect(a.getByRole("heading",{name:"Phase103 Editor A Dashboard"})).toBeVisible();
   await b.getByLabel("Dashboard name").fill("Phase103 Editor B Stale Dashboard");const staleSave=b.waitForResponse(r=>r.url().includes("/dashboard")&&r.request().method()==="PATCH");await b.getByRole("button",{name:"Save Dashboard"}).click();expect((await staleSave).status()).toBe(409);await expect(b.getByRole("dialog",{name:"Newer changes are available"})).toBeVisible();await expect(b.getByRole("button",{name:"Save My Draft"})).toBeVisible();await b.getByRole("button",{name:"Save My Draft"}).click();await expect(b.getByText("My Draft",{exact:true})).toBeVisible();
-  b.once("dialog",dialog=>dialog.accept());await b.getByRole("button",{name:"Discard Draft"}).click();await expect(b.getByText("My Draft",{exact:true})).toHaveCount(0);await first.close();await second.close();
+  b.once("dialog",dialog=>dialog.accept());await b.getByRole("button",{name:"Discard Draft"}).click();await expect(b.getByText("My Draft",{exact:true})).toHaveCount(0);await closeContextCleanly(first);await closeContextCleanly(second);
 });
 
 test("Device share requires recipient acceptance and Admin approval before original-resource access",async({browser})=>{
@@ -120,7 +125,7 @@ test("Device share requires recipient acceptance and Admin approval before origi
   const sender=await senderContext.newPage();await sender.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");const href=await sender.getByRole("link",{name:/Open Phase103 Shared Temperature Device/}).getAttribute("href");const deviceId=href!.split("/").pop()!;await sender.goto(`http://127.0.0.1:15173/app/devices/${deviceId}/share`);const recipientValue=await sender.getByLabel("Recipient").locator("option",{hasText:"Phase103 Share Recipient"}).getAttribute("value");await sender.getByLabel("Recipient").selectOption(recipientValue!);await sender.getByLabel("Requested access").selectOption("full_access");await sender.getByRole("button",{name:"Send request"}).click();await expect(sender).toHaveURL(/\/app\/shares\/\d+$/);const shareUrl=sender.url();
   const recipient=await recipientContext.newPage();await recipient.goto(shareUrl);await recipient.getByRole("button",{name:"Accept request"}).click();await expect(recipient.getByText("awaiting admin approval",{exact:true})).toBeVisible();await recipient.goto(`http://127.0.0.1:15173/app/devices/${deviceId}`);await expect(recipient.getByText("Device not found or unavailable.")).toBeVisible();await sender.close();await recipient.close();
   const admin=await adminContext.newPage();await admin.goto("http://127.0.0.1:15173/admin/access-requests");await expect(admin.getByRole("heading",{name:"Device Access Requests"})).toBeVisible();await admin.getByLabel("Final access").selectOption("viewer");await admin.getByRole("button",{name:"Approve"}).click();await expect(admin.getByText("No Device requests await approval.")).toBeVisible();await admin.close();const recipientAfter=await recipientContext.newPage();await recipientAfter.goto(`http://127.0.0.1:15173/app/devices/${deviceId}`);await expect(recipientAfter.getByRole("heading",{name:"Phase103 Shared Temperature Device"})).toBeVisible();
-  await senderContext.close();await recipientContext.close();await adminContext.close();
+  await closeContextCleanly(senderContext);await closeContextCleanly(recipientContext);await closeContextCleanly(adminContext);
 });
 
 test("Admin approves the exact submitted Template revision and the published payload stays pinned",async({page})=>{
@@ -142,7 +147,7 @@ test("open Device access is revoked by Admin and disappears on the next protecte
   await viewer.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");await viewer.getByRole("link",{name:/Open Phase103 Shared Temperature Device/}).click();await expect(viewer.getByRole("heading",{name:"Phase103 Shared Temperature Device"})).toBeVisible();
   const removed=await admin.evaluate(async()=>{const headers={Authorization:`Bearer ${localStorage.getItem("iot_token")}`,Accept:"application/json","Content-Type":"application/json"};const list=await fetch("/api/admin/device-access?search=Phase103%20Device%20Viewer",{headers});const body=await list.json();const assignment=body.data.find((item:{user:{email:string}})=>item.user.email==="viewer@phase103.test");const response=await fetch(`/api/admin/device-access/${assignment.id}`,{method:"DELETE",headers});return response.status;});expect(removed).toBe(204);
   await viewer.reload();await expect(viewer.getByText("Device not found or unavailable.")).toBeVisible();const searchResponse=viewer.waitForResponse(response=>response.url().includes("/api/search?q=PHASE103-D1")&&response.request().method()==="GET");await viewer.goto("http://127.0.0.1:15173/app/search?q=PHASE103-D1");await searchResponse;await expect(viewer.getByText("No accessible resources found.")).toBeVisible();
-  await viewerContext.close();await adminContext.close();
+  await closeContextCleanly(viewerContext);await closeContextCleanly(adminContext);
 });
 
 test("Dashboard comments create and reply safely without executing HTML-like text",async({page})=>{

@@ -62,8 +62,7 @@ export async function uploadDashboardMapAsset(dashboardId: string, file: File) {
 }
 
 export function dashboardMapAssetUrl(assetId: string | number): string {
-  const value = String(assetId);
-  return value.startsWith("/") || value.startsWith("http") ? value : `/api/dashboard-map-assets/${value}`;
+  return `/dashboard-map-assets/${assetId}`;
 }
 export async function getGlobalDashboard() {
   const response = await api.get<Dashboard>("/admin/dashboards/global");

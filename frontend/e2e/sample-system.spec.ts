@@ -6,6 +6,7 @@ test("single sample system loads its complete backend-backed Dashboard",async({p
  expect(login.ok()).toBeTruthy();
  const session=await login.json() as {token:string};
  await page.addInitScript(token=>localStorage.setItem("iot_token",token),session.token);
+ const protectedAsset=page.waitForResponse(response=>response.url().includes("/dashboard-map-assets/"));
  await page.goto("/app/dashboard");
  await expect(page.getByRole("heading",{name:"Sample Device Dashboard"})).toBeVisible({timeout:30_000});
  await expect(page.locator('[aria-label$=" widget"]')).toHaveCount(25);
@@ -17,6 +18,10 @@ test("single sample system loads its complete backend-backed Dashboard",async({p
  await expect(page.getByText("24",{exact:true}).first()).toBeVisible();
  await expect(page.locator('[aria-label="Geographic map of authorized Device locations"]')).toHaveCount(1);
  await expect(page.locator('[aria-label="Device floorplan with overlay markers"]')).toHaveCount(1);
+ const assetResponse=await protectedAsset;
+ expect(new URL(assetResponse.url()).pathname).toMatch(/^\/api\/dashboard-map-assets\/\d+$/);
+ expect(assetResponse.status()).toBe(200);
+ expect(assetResponse.headers()["content-type"]).toMatch(/^image\//);
  await expect(page.getByRole("switch")).toBeDisabled();
  await expect(page.getByLabel("Read-only Device value")).toBeDisabled();
  await expect(page.getByText("Operational Dashboard.")).toHaveCount(0);

@@ -15,7 +15,9 @@ export async function listFirmwareArtifacts(search = "") {
 }
 export async function uploadFirmware(form: FormData) {
   return (
-    await api.post<{ data: FirmwareArtifact }>("/firmware/artifacts", form)
+    await api.post<{ data: FirmwareArtifact }>("/firmware/artifacts", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
   ).data.data;
 }
 export async function updateFirmware(

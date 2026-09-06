@@ -1,12 +1,29 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { browserBackendEnv, backendDirectory, prepareBrowserTestDatabase } from "./prepare-browser-db.mjs";
+import { browserBackendEnv, backendDirectory, browserDatabase, prepareBrowserTestDatabase } from "./prepare-browser-db.mjs";
 
 const frontendDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const backendPort = 18000;
 const frontendPort = 15173;
+const runtimeDirectory = path.join(backendDirectory, "storage", "e2e-runtime");
+
+function removeOwnedRuntimeArtifacts() {
+  fs.mkdirSync(runtimeDirectory, { recursive: true });
+  for (const entry of fs.readdirSync(runtimeDirectory, { withFileTypes: true })) {
+    if (entry.isFile() && /\.sqlite(?:-journal|-wal|-shm)?$/.test(entry.name)) fs.rmSync(path.join(runtimeDirectory, entry.name), { force: true });
+  }
+  const remaining = fs.readdirSync(runtimeDirectory).filter(name => /\.sqlite(?:-journal|-wal|-shm)?$/.test(name));
+  if (remaining.length) throw new Error(`E2E runtime artifacts remained: ${remaining.join(", ")}`);
+}
+
+function removeSuiteDatabase() {
+  fs.rmSync(browserDatabase, { force: true });
+  const remaining = [browserDatabase].filter(file => fs.existsSync(file));
+  if (remaining.length) throw new Error(`E2E suite databases remained: ${remaining.join(", ")}`);
+}
 
 function isPortFree(port) {
   return new Promise((resolve) => {
@@ -36,6 +53,7 @@ function stop(child, label) {
 async function main() {
   let frontend; let playwright; let resultCode = 1;
   try {
+    removeOwnedRuntimeArtifacts();
     for (const [port, label] of [[backendPort, "backend"], [frontendPort, "frontend"]]) if (!(await isPortFree(port))) throw new Error(`${label} port ${port} is already in use; refusing stale-server reuse`);
     console.log("[harness] preparing browser database");
     prepareBrowserTestDatabase();
@@ -48,6 +66,7 @@ async function main() {
     await stop(frontend, "frontend");
     // PHP is owned and stopped by the test-scoped Playwright fixture.
     for (const [port, label] of [[backendPort, "backend"], [frontendPort, "frontend"]]) if (!(await isPortFree(port))) { console.error(`[harness] ${label} port ${port} remained in use`); resultCode = 1; }
+    try { removeOwnedRuntimeArtifacts(); removeSuiteDatabase(); } catch (error) { console.error(`[harness] ${error instanceof Error ? error.message : String(error)}`); resultCode = 1; }
   }
   process.exitCode = resultCode;
 }
